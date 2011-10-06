@@ -1,6 +1,6 @@
 set(SRCS	Src/Main.cpp)
 #Don't have any of these yet
-#set(LIBS)
+set(LIBS	common)
 
 
 

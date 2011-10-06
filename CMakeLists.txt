@@ -6,7 +6,6 @@ project(Test)
 
 # Set up paths
 set(bindir		${CMAKE_INSTALL_PREFIX}/bin					CACHE PATH "bindir")
-set(datadir		${CMAKE_INSTALL_PREFIX}/share/dolphin-emu	CACHE PATH "datadir")
 
 # Set where the binary files will be built.  The program will not execute from
 # here.  You must run "make install" to install these to the proper location
@@ -14,13 +13,17 @@ set(datadir		${CMAKE_INSTALL_PREFIX}/share/dolphin-emu	CACHE PATH "datadir")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/Binaries)
 
 
-
+# Add our common directory for Common includes
+include_directories(Common/Src)
 
 
 ########################################
 # Start compiling our code
 #
+
+add_subdirectory(Common)
 add_subdirectory(Client)
+add_subdirectory(Server)
 
 
 # packaging information
