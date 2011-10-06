@@ -1,0 +1,12 @@
+set(SRCS	Src/Main.cpp)
+#Don't have any of these yet
+#set(LIBS)
+
+
+
+set(TEST_EXE Server)
+
+add_executable(${TEST_EXE} ${SRCS})
+target_link_libraries(${TEST_EXE} ${LIBS})
+install(TARGETS ${TEST_EXE} RUNTIME DESTINATION ${bindir})
+
