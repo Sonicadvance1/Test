@@ -14,8 +14,12 @@ int main(int argc, char **argv)
 	Graphics::Init();
 	for(;;usleep(5000))
 	{
+
 		Graphics::Clear();
-		Graphics::DrawRect({100, 100, 50, 50});
+		for(int x = -17; x < 17; ++x)
+			for(int y = -13; y < 13; ++y)
+				if((y % 2 + x % 2))
+					Graphics::DrawRect({x, y, 1, 1});
 		Graphics::Swap();
 	}
 	Windows::Shutdown();

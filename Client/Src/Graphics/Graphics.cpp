@@ -13,10 +13,10 @@ namespace Graphics
 		glPushMatrix();
 		glBegin(GL_QUADS);
 			glColor4f(0.5, 1.0, 1.0, 1.0);
-			glVertex2f(Quad.x, Quad.y); // Top Left
-			glVertex2f(Quad.x + Quad.w, Quad.y); // Top Right
-			glVertex2f(Quad.x + Quad.w, Quad.y + Quad.h); // Bottom Right
-			glVertex2f(Quad.x, Quad.y + Quad.h); // Bottom Left
+			glVertex3f(Quad.x, Quad.y, -32); // Top Left
+			glVertex3f(Quad.x + Quad.w, Quad.y, -32); // Top Right
+			glVertex3f(Quad.x + Quad.w, Quad.y + Quad.h, -32); // Bottom Right
+			glVertex3f(Quad.x, Quad.y + Quad.h, -32); // Bottom Left
 		glEnd();
 		glPopMatrix();
 	}
@@ -27,7 +27,7 @@ namespace Graphics
 		glViewport(Dims.x, Dims.y, Dims.w, Dims.h); // Set our viewport to the window size
 		glMatrixMode(GL_PROJECTION);                        // Select The Projection Matrix
 		glLoadIdentity();                           // Reset The Projection Matrix
-		glOrtho(0.0f, Dims.w, Dims.h, 0.0f, -255.0f, 255.0f);
+		gluPerspective(45.0f, float(Dims.w) / float(Dims.h), 0.1f, 128.0f);
 		glMatrixMode(GL_MODELVIEW);                        // Select The Projection Matrix
 		glLoadIdentity();                           // Reset The Projection Matrix
 		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);                   // Black Background
