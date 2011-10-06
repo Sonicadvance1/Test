@@ -13,6 +13,21 @@ set(bindir		${CMAKE_INSTALL_PREFIX}/bin					CACHE PATH "bindir")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/Binaries)
 
 
+if(NOT CMAKE_BUILD_TYPE)
+	set(CMAKE_BUILD_TYPE "Release" CACHE STRING
+		"Build type (Release/Debug/RelWithDebInfo/MinSizeRe)" FORCE)
+endif(NOT CMAKE_BUILD_TYPE)
+
+if(CMAKE_BUILD_TYPE STREQUAL Debug)
+	add_definitions(-ggdb)
+endif(CMAKE_BUILD_TYPE STREQUAL Debug)
+
+if(CMAKE_BUILD_TYPE STREQUAL Release)
+	add_definitions(-fomit-frame-pointer -O2)
+endif(CMAKE_BUILD_TYPE STREQUAL Release)
+
+
+add_definitions(-std=c++0x)
 # Add our common directory for Common includes
 include_directories(Common/Src)
 

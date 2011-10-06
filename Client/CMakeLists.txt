@@ -1,8 +1,15 @@
-set(SRCS	Src/Main.cpp)
+set(SRCS	Src/Main.cpp
+			Src/Graphics/Linux.cpp
+	)
 #Don't have any of these yet
-set(LIBS common)
 
 
+include(FindOpenGL)
+include_directories(${OPENGL_INCLUDE_DIR})
+set(LIBS common
+	${OPENGL_LIBRARIES}
+	${X11_LIBRARIES}
+	)
 
 set(TEST_EXE Client)
 
