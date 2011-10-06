@@ -38,10 +38,9 @@ void CreateXWindow(void)
 			CWBorderPixel | CWBackPixel | CWColormap | CWEventMask, &attr);
 	wmProtocols[0] = XInternAtom(dpy, "WM_DELETE_WINDOW", True);
 	XSetWMProtocols(dpy, win, wmProtocols, 1);
-	XSetStandardProperties(dpy, win, "GPU", "GPU", None, NULL, 0, NULL);
+	XSetStandardProperties(dpy, win, "Test Program", "Test Program", None, NULL, 0, NULL);
 	XMapRaised(dpy, win);
 	XSync(dpy, True);
-	XStoreName(dpy, win, "Test Program");
 
 	xEventThread = std::thread(XEventThread);
 }
@@ -55,11 +54,17 @@ void XEventThread()
 namespace Windows
 {
 	bool bInitialized = false;
+	int iBackBufferWidth, iBackBufferHeight;
 
+	sRect GetScreenDim()
+	{
+		return {0, 0, iBackBufferWidth, iBackBufferHeight};
+	}
 	bool Init()
 	{
 		int glxMajorVersion, glxMinorVersion;
-
+		iBackBufferWidth = DEFAULT_WIDTH;
+		iBackBufferHeight = DEFAULT_HEIGHT;
 		// attributes for a double buffered visual in RGBA format with at least
 		// 8 bits per color and a 24 bit depth buffer
 		int attrListDbl[] = {GLX_RGBA, GLX_DOUBLEBUFFER,
@@ -96,6 +101,7 @@ namespace Windows
 		}
 
 		CreateXWindow();
+		glXMakeCurrent(dpy, win, ctx);
 	}
 
 	void Shutdown()

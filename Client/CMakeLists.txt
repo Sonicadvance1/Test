@@ -1,5 +1,6 @@
 set(SRCS	Src/Main.cpp
 			Src/Graphics/Linux.cpp
+			Src/Graphics/Graphics.cpp
 	)
 #Don't have any of these yet
 
