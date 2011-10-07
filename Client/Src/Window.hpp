@@ -1,5 +1,5 @@
-#ifndef WINDOW_H_
-#define WINDOW_H_
+#ifndef WINDOW_HPP_
+#define WINDOW_HPP_
 #include "Graphics.hpp"
 #define DEFAULT_WIDTH 1024
 #define DEFAULT_HEIGHT 768

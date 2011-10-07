@@ -2,8 +2,8 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#include "Socket.h"
-#include "Player.h"
+#include "Socket.hpp"
+#include "Players.hpp"
 #include "Window.hpp"
 #include "Graphics.hpp"
 #include <GL/gl.h>

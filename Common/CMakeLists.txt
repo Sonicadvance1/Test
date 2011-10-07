@@ -1,4 +1,5 @@
-set(SRCS	Src/Player.cpp
+set(SRCS	Src/Map.cpp
+			Src/Players.cpp
 			Src/Socket.cpp
 			)
 
