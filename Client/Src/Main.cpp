@@ -6,18 +6,22 @@
 #include "Player.h"
 #include "Window.hpp"
 #include "Graphics.hpp"
+#include <GL/gl.h>
 // We should move these to specific files later
 
 int main(int argc, char **argv)
 {
 	Windows::Init();
 	Graphics::Init();
-	for(;;usleep(5000))
+	for(;;usleep(500000))
 	{
 
 		Graphics::Clear();
-		for(int x = -17; x < 17; ++x)
-			for(int y = -13; y < 13; ++y)
+		glLoadIdentity();                           // Reset The Projection Matrix
+		glRotatef(-25, 1, 0,0);
+		glTranslated(0, 16, 0);
+		for(int x = -25; x < 25; ++x)
+			for(int y = -17; y < 17; ++y)
 				if((y % 2 + x % 2))
 					Graphics::DrawRect({x, y, 1, 1});
 		Graphics::Swap();
