@@ -12,11 +12,33 @@ namespace Graphics
 		// we need to NOT use immediate mode, is super slow compared to other ways
 		glPushMatrix();
 		glBegin(GL_QUADS);
-			glColor4f(0.5, 1.0, 1.0, 1.0);
+		static float colour = 0.0f;
+		colour += 0.01f;
+		if(colour > 1.0f)
+			colour = 0.0f;
+			glColor4f(colour, 1.0, 1.0, 1.0);
 			glVertex3f(Quad.x, Quad.y, -32); // Top Left
 			glVertex3f(Quad.x + Quad.w, Quad.y, -32); // Top Right
 			glVertex3f(Quad.x + Quad.w, Quad.y + Quad.h, -32); // Bottom Right
 			glVertex3f(Quad.x, Quad.y + Quad.h, -32); // Bottom Left
+		glEnd();
+		glPopMatrix();
+	}
+	// TODO: Actually draw a cube!
+	void DrawCube(sCube Cube)
+	{
+		// we need to NOT use immediate mode, is super slow compared to other ways
+		glPushMatrix();
+		glBegin(GL_QUADS);
+		static float colour = 0.0f;
+		colour += 0.01f;
+		if(colour > 1.0f)
+			colour = 0.0f;
+			glColor4f(colour, 1.0, 1.0, 1.0);
+			glVertex3f(Cube.x, Cube.y, -32 + Cube.depth); // Top Left
+			glVertex3f(Cube.x + Cube.w, Cube.y, -32 + Cube.depth); // Top Right
+			glVertex3f(Cube.x + Cube.w, Cube.y + Cube.h, -32 + Cube.depth); // Bottom Right
+			glVertex3f(Cube.x, Cube.y + Cube.h, -32 + Cube.depth); // Bottom Left
 		glEnd();
 		glPopMatrix();
 	}

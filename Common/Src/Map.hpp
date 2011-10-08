@@ -1,5 +1,11 @@
 #ifndef MAP_HPP_
 #define MAP_HPP_
+#include <map>
+#include <iostream>
+#include <utility>
+// std::triple
+#define make_triple(X, Y, Z) std::make_pair(std::make_pair(X, Y), Z)
+
 
 #include "Common.hpp"
 #include "RawReader.hpp"
@@ -12,8 +18,8 @@ enum
 // Class cTile might be moved to it's own file
 class cTile
 {
-	private:
-		u64 _X, _Y, _Z;
+	public:
+		s64 _X, _Y, _Z;
 	public:
 	cTile(){}
 	cTile(u8 **Buffer)
@@ -21,6 +27,10 @@ class cTile
 		_X = RawReader::Read<u64>(Buffer);
 		_Y = RawReader::Read<u64>(Buffer);
 		_Z = RawReader::Read<u64>(Buffer);
+	}
+	std::pair<std::pair<s64, s64>, s64> Triple()
+	{
+		return make_triple(_X, _Y, _Z);
 	}
 	
 };
@@ -35,7 +45,7 @@ class cMap
 		 * Or perhaps use a std::map with a std::triple<u64 _X, u64 _Y, u16/u32/u64 _X>?
 		 * Not 100% how I want it to look yet
 		*/
-		cTile *_Tiles;
+		std::map<std::pair<std::pair<s64, s64>, s64>, cTile> _Tiles;
 
 		// This is direct to the correct loader
 		// Be it entities, tiles or other things in the map
@@ -49,6 +59,7 @@ class cMap
 				case MAP_TILE:
 				{
 					cTile tmp(Buffer);
+					_Tiles[tmp.Triple()] = tmp;
 				}
 				break;
 				case MAP_ENTITY:
@@ -82,6 +93,10 @@ class cMap
 							0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,	// _X = 1
 							0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,	// _Y = 0
 							0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,	// _Z = 0
+							0x00,											// Object Type = MAP_TILE							
+							0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,	// _X = 2
+							0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,	// _Y = 0
+							0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,	// _Z = 1
 						};
 			// Hack for now, will look a lot nicer once we are actually loading from File
 			u8 *pMap = &Map[0];
@@ -92,6 +107,14 @@ class cMap
 			while(pMap != (&Map[0] + sizeof(Map)))
 				LoadObject(&pMap);
 			
+		}
+		void Draw()
+		{
+			std::map<std::pair<std::pair<s64, s64>, s64>, cTile>::iterator it;
+			for(it = _Tiles.begin(); it != _Tiles.end(); ++it)
+			{
+				Graphics::DrawCube({it->second._X, it->second._Y, 1, 1, it->second._Z});
+			}
 		}
 };
 #endif
