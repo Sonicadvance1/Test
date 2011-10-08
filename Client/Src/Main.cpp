@@ -23,10 +23,7 @@ int main(int argc, char **argv)
 		glLoadIdentity();                           // Reset The Projection Matrix
 		glRotatef(-25, 1, 0,0);
 		glTranslated(0, 16, 0);
-		for(int x = -25; x < 25; ++x)
-			for(int y = -17; y < 17; ++y)
-				if((y % 2 + x % 2))
-					Graphics::DrawRect({x, y, 1, 1});
+		Test.Draw();
 		Graphics::Swap();
 	}
 	Windows::Shutdown();
