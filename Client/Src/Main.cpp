@@ -5,12 +5,15 @@
 #include "Socket.hpp"
 #include "Players.hpp"
 #include "Window.hpp"
+#include "Map.hpp"
 #include "Graphics.hpp"
 #include <GL/gl.h>
 // We should move these to specific files later
 
 int main(int argc, char **argv)
 {
+	cMap Test;
+	Test.Load(5);
 	Windows::Init();
 	Graphics::Init();
 	for(;;usleep(500000))
