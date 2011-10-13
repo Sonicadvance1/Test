@@ -19,16 +19,16 @@ enum
 class cTile
 {
 	public:
-		s64 _X, _Y, _Z;
+		f32 _X, _Y, _Z;
 	public:
 	cTile(){}
 	cTile(u8 **Buffer)
 	{
-		_X = RawReader::Read<u64>(Buffer);
-		_Y = RawReader::Read<u64>(Buffer);
-		_Z = RawReader::Read<u64>(Buffer);
+		_X = RawReader::Read<f32>(Buffer);
+		_Y = RawReader::Read<f32>(Buffer);
+		_Z = RawReader::Read<f32>(Buffer);
 	}
-	std::pair<std::pair<s64, s64>, s64> Triple()
+	std::pair<std::pair<f32, f32>, f32> Triple()
 	{
 		return make_triple(_X, _Y, _Z);
 	}
@@ -39,13 +39,14 @@ class cMap
 	private:
 		// Maximum width and height of map.
 		u64 _Width, _Height;
+		GLuint Tex;
 		/*
 		 * 	Array of Tiles
-		 * TODO: Convert to a three dimensional array
-		 * Or perhaps use a std::map with a std::triple<u64 _X, u64 _Y, u16/u32/u64 _X>?
-		 * Not 100% how I want it to look yet
+		 * Not 100% sure they should be in float for coordinates
+		 * I mean, everything should just be decimal based right?
+		 * Need to look in to how I want to do this more later
 		*/
-		std::map<std::pair<std::pair<s64, s64>, s64>, cTile> _Tiles;
+		std::map<std::pair<std::pair<f32, f32>, f32>, cTile> _Tiles;
 
 		// This is direct to the correct loader
 		// Be it entities, tiles or other things in the map
@@ -86,18 +87,28 @@ class cMap
 			u8 Map[] =	{	0x40, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,	// _Width = 64
 							0x40, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,	// _Height = 64
 							0x00,											// Object Type = MAP_TILE							
-							0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,	// _X = 0
-							0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,	// _Y = 0
-							0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,	// _Z = 0
+							0x00, 0x00, 0x00, 0x00,	// _X = 0
+							0x00, 0x00, 0x00, 0x00,	// _Y = 0
+							0x00, 0x00, 0x00, 0x00,	// _Z = 0
 							0x00,											// Object Type = MAP_TILE							
-							0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,	// _X = 1
-							0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,	// _Y = 0
-							0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,	// _Z = 0
+							0x00, 0x00, 0x80, 0x3F, // _X = 1
+							0x00, 0x00, 0x00, 0x00, // _Y = 0
+							0x00, 0x00, 0x00, 0x00, // _Z = 0
 							0x00,											// Object Type = MAP_TILE							
-							0x02, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,	// _X = 2
-							0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,	// _Y = 0
-							0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,	// _Z = 1
+							0x00, 0x00, 0x00, 0x40,	// _X = 2
+							0x00, 0x00, 0x00, 0x00, // _Y = 0
+							0x3F, 0x80, 0x00, 0x00, // _Z = 1
 						};
+			// TODO: remove this from here, this was just for testing
+			Tex = Graphics::LoadTexture("Resources/Watermelon.png");
+			union uTest
+			{
+				f32 ftest;
+				u8 utest[4];
+			};
+			uTest Test;
+			Test.ftest = 3.0f;
+			printf("%02X%02X%02X%02X\n", Test.utest[0],Test.utest[1],Test.utest[2],Test.utest[3]);
 			// Hack for now, will look a lot nicer once we are actually loading from File
 			u8 *pMap = &Map[0];
 			// Get our width and height
@@ -110,10 +121,10 @@ class cMap
 		}
 		void Draw()
 		{
-			std::map<std::pair<std::pair<s64, s64>, s64>, cTile>::iterator it;
+			std::map<std::pair<std::pair<f32, f32>, f32>, cTile>::iterator it;
 			for(it = _Tiles.begin(); it != _Tiles.end(); ++it)
 			{
-				Graphics::DrawCube({it->second._X, it->second._Y, 1, 1, it->second._Z});
+				Graphics::DrawCube({it->second._X, it->second._Y, it->second._Z, 1, 1, 1}, Tex);
 			}
 		}
 };

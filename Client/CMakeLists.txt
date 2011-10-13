@@ -6,10 +6,13 @@ set(SRCS	Src/Main.cpp
 
 
 include(FindOpenGL)
-include_directories(${OPENGL_INCLUDE_DIR})
+include(FindPNG)
+include_directories(${OPENGL_INCLUDE_DIR}, ${PNG_INCLUDE_DIR})
 set(LIBS common
+	GLEW
 	${OPENGL_LIBRARIES}
 	${X11_LIBRARIES}
+	${PNG_LIBRARIES}
 	)
 
 set(TEST_EXE Client)
