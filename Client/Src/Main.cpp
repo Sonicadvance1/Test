@@ -19,9 +19,6 @@ int main(int argc, char **argv)
 	for(;;usleep(500000))
 	{
 		Graphics::Clear();
-		glLoadIdentity();                           // Reset The Projection Matrix
-		glRotatef(-25, 1, 0,0);
-		glTranslated(0, 16, 0);
 		Test.Draw();
 		Graphics::Swap();
 	}

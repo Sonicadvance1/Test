@@ -351,6 +351,8 @@ namespace Graphics
 		glMatrixMode(GL_MODELVIEW);                        // Select The Projection Matrix
 		glLoadIdentity();                           // Reset The Projection Matrix
 		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);                   // Black Background
+		glRotatef(-25, 1, 0,0);
+		glTranslated(0, 16, 0);
 
 		glEnable(GL_BLEND);
 		glEnable(GL_TEXTURE_2D);
