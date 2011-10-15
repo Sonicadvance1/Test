@@ -6,7 +6,7 @@
 #define DEFAULT_WIDTH 1024
 #define DEFAULT_HEIGHT 768
 
-enum Key_Type
+enum class Key_Type
 {
 	KEY_W = 0,
 	KEY_A = 1,

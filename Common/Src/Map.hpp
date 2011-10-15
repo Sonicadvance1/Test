@@ -114,6 +114,9 @@ class cMap
 			// Get our width and height
 			_Width = RawReader::Read<u64>(&pMap);
 			_Height = RawReader::Read<u64>(&pMap);
+			u8 *ppMap = &Map[0];
+			ppMap+=17;
+			RawReader::Write<f32>(&ppMap, -1.0f);
 			// This loads all of the objects now.
 			while(pMap != (&Map[0] + sizeof(Map)))
 				LoadObject(&pMap);

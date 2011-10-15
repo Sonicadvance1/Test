@@ -58,6 +58,7 @@ void XEventThread()
 		for (u32 num_events = XPending(dpy); num_events > 0; --num_events)
 		{
 			XNextEvent(dpy, &event);
+			printf("%d\n", event.type);
 			switch (event.type)
 			{
 				// Is a key pressed?
@@ -69,19 +70,25 @@ void XEventThread()
 					switch (key)
 					{
 						case XK_w: // UP
-							_KeyStatus.push_back(KEY_W);
+							_KeyStatus.push_back(Key_Type::KEY_W);
 						break;
 						case XK_a: // LEFT
-							_KeyStatus.push_back(KEY_A);
+							_KeyStatus.push_back(Key_Type::KEY_A);
 						break;
 						case XK_s: // DOWN
-							_KeyStatus.push_back(KEY_S);
+							_KeyStatus.push_back(Key_Type::KEY_S);
 						break;
 						case XK_d: // RIGHT
-							_KeyStatus.push_back(KEY_D);
+							_KeyStatus.push_back(Key_Type::KEY_D);
 						break;
 					}
 					Windows::KeyLock.unlock();
+				}
+				break;
+				case ClientMessage: // For Window close event
+				{
+					if (event.xclient.data.l[0] == XInternAtom(dpy, "WM_DELETE_WINDOW", False))
+						Running = false;
 				}
 				break;
 			}

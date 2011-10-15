@@ -16,5 +16,14 @@ namespace RawReader
 		*Buffer += sizeof(tmp);
 		return tmp;
 	}
+	template<class T>
+	// Writes a variable to a buffer, returns how much written
+	u32 Write(u8 **Buffer, T Variable)
+	{
+		memcpy(*Buffer, &Variable, sizeof(Variable));
+		*Buffer += sizeof(Variable);
+		printf("Size: %d\n", sizeof(Variable));
+		return sizeof(Variable);
+	}
 }
 #endif
