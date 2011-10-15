@@ -16,6 +16,8 @@
 	GLXContext ctx;
 	XSetWindowAttributes attr;
 	std::thread xEventThread;
+	
+	std::vector<Key_Type> _KeyStatus;
 
 void XEventThread();
 void CreateXWindow();
@@ -48,6 +50,44 @@ void CreateXWindow(void)
 void XEventThread()
 {
 	// We will get key events and stuff here
+	while(Running)
+	{
+		XEvent event;
+		KeySym key;
+		// Let's loop through all the events
+		for (u32 num_events = XPending(dpy); num_events > 0; --num_events)
+		{
+			XNextEvent(dpy, &event);
+			switch (event.type)
+			{
+				// Is a key pressed?
+				case KeyPress:
+				{
+					// Get what key it is.
+					key = XLookupKeysym((XKeyEvent*)&event, 0);
+					Windows::KeyLock.lock();
+					switch (key)
+					{
+						case XK_w: // UP
+							_KeyStatus.push_back(KEY_W);
+						break;
+						case XK_a: // LEFT
+							_KeyStatus.push_back(KEY_A);
+						break;
+						case XK_s: // DOWN
+							_KeyStatus.push_back(KEY_S);
+						break;
+						case XK_d: // RIGHT
+							_KeyStatus.push_back(KEY_D);
+						break;
+					}
+					Windows::KeyLock.unlock();
+				}
+				break;
+			}
+		}
+		usleep(5000);
+	}
 }
 
 
@@ -55,6 +95,7 @@ namespace Windows
 {
 	bool bInitialized = false;
 	int iBackBufferWidth, iBackBufferHeight;
+	std::mutex KeyLock;
 
 	sRect GetScreenDim()
 	{
@@ -124,6 +165,12 @@ namespace Windows
 	void SwapBuffers()
 	{
 		glXSwapBuffers(dpy, win);
+	}
+	std::vector<Key_Type> GetKeyStatus()
+	{
+		std::vector<Key_Type> tmp = _KeyStatus;
+		_KeyStatus.clear();
+		return tmp;
 	}
 }
 
