@@ -15,7 +15,7 @@ cSocket::cSocket()
 	
 }
 // Constructor with a valid socket
-cSocket::cSocket(s32 Socket)
+cSocket::cSocket(s32 Socket, u32 IP)
 {
 	//	Zero out our set
 	FD_ZERO(&_Set);
@@ -23,6 +23,8 @@ cSocket::cSocket(s32 Socket)
 	FD_SET(Socket, &_Set);
 	// Set our internal socket
 	_Socket = Socket;
+	// Set our IP
+	_IP = IP;
 }
 
 // Destructor
@@ -109,7 +111,7 @@ s32 cSocket::Recv(u8 *buf, u32 size)
 }
 
 // Accepts new connections
-s32 cSocket::Accept()
+cSocket* cSocket::Accept()
 {
 
 	s32 newfd; // New Socket
@@ -124,6 +126,10 @@ s32 cSocket::Accept()
     {
         printf("Server-accept() is OK...\n");
         printf("New connection from %s on socket %d\n", inet_ntoa(clientaddr.sin_addr), newfd);
-        return newfd;
+        return new cSocket(newfd, clientaddr.sin_addr.s_addr);
     }
+}
+u32 cSocket::IP()
+{
+	return _IP;
 }
