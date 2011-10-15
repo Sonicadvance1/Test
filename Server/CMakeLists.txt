@@ -1,6 +1,9 @@
 set(SRCS	Src/Main.cpp)
-#Don't have any of these yet
-set(LIBS	common)
+
+set(LIBS	
+	common
+	pthread
+	)
 
 
 
