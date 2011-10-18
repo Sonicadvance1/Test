@@ -93,7 +93,7 @@ void XEventThread()
 				break;
 			}
 		}
-		usleep(5000);
+		usleep(10000);
 	}
 }
 

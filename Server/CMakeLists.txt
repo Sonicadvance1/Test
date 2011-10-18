@@ -1,8 +1,11 @@
-set(SRCS	Src/Main.cpp)
+set(SRCS	Src/Main.cpp
+			Src/Database.cpp
+	)
 
 set(LIBS	
 	common
 	pthread
+	sqlite3
 	)
 
 

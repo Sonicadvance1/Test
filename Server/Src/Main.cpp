@@ -5,42 +5,47 @@
  * Created on October 6, 2011, 12:04 AM
  */
 #define __STDC_LIMIT_MACROS
-#include <iostream>
-#include <algorithm>
-using namespace std;
 #include <stdint.h>
 #include <cstdlib>
 #include <time.h>
 #include <string.h>
-#include <algorithm>
-#include <thread>
+#include <signal.h>
+
 #include "Players.hpp"
 #include "structs.h"
 #include "Socket.hpp"
+#include "Database.hpp"
+
 #define SERVER_VERSION "0.0.02"
-unsigned short serverPort;
+bool Running = true;
+cSocket Listener;
+
+unsigned short serverPort = 7110;
 int blockConnections = 0;
 unsigned blockTick = 0;
 time_t servertime;
-fd_set ReadFDs, WriteFDs, ExceptFDs;
 
-struct timeval select_timeout = { 
-	0,
-	5000
-};
-
+void Sighandler(int sig)
+{
+	Running = false;
+}
 int main(int argc, char** argv) 
 {
-	// Set our port
-	serverPort = 7110;
-	cSocket Listener;
+	// Attach to various terminal signals
+    signal(SIGABRT, &Sighandler);
+	signal(SIGTERM, &Sighandler);
+	signal(SIGINT, &Sighandler);
+	// Initialize our Database
+	if(!Database::Init())
+		return 1;
+		
 	// Bind our port
 	if(!Listener.Open(serverPort))
-		return 1;
+		return 2;
 	// Set us to listen
 	if(!Listener.Listen())
-		return 1;
-	for(;;)
+		return 3;
+	while(Running);
 	{
 		// Do we have a connection?
 		if(Listener.HasData())
@@ -51,6 +56,8 @@ int main(int argc, char** argv)
 			Players::InsertPlayer(newfd->IP(), new cPlayer(newfd));
 		}
 	}
+	// Shutdown our Database
+	Database::Shutdown();
 	return 0;
 } // end of int main
                     

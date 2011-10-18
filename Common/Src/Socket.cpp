@@ -7,6 +7,11 @@
 #include <string.h>
 #include "Socket.hpp"
 
+struct timeval Maxtimeout = { 
+	1,
+	0
+};
+
 // Our Constructor
 cSocket::cSocket()
 {
@@ -90,7 +95,7 @@ bool cSocket::Listen()
 bool cSocket::HasData()
 {
 	fd_set tmpSet = _Set;
-    if(select(_Socket+1, &tmpSet, NULL, NULL, NULL) == -1)
+    if(select(_Socket+1, &tmpSet, NULL, NULL, &Maxtimeout) == -1)
     {
         printf("Couldn't select socket!\n");
         return false;
