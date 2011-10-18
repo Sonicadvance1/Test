@@ -3,3 +3,9 @@
 	mkdir Build
 	cd Build
 	cmake ..
+	make
+-Enabling Debug Build-
+	mkdir Build
+	cd Build
+	cmake -DCMAKE_BUILD_TYPE=Debug ..
+	make
