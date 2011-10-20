@@ -1,3 +1,5 @@
+#ifndef COMMON_HPP_
+#define COMMON_HPP_
 // Some defines
 
 //unsigned types
@@ -16,6 +18,13 @@ typedef signed long long s64;
 typedef float f32;
 typedef double f64;
 
+// Coordinates
+struct sCoord
+{
+	f32 X, Y, Z;
+};
+
 // Running?
 extern bool Running;
+#endif
 

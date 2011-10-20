@@ -1,6 +1,9 @@
+#ifndef DATABASE_HPP_
+#define DATABASE_HPP_
 
 #define DATABASE_FILENAME "Database.sqlite3"
 #define PLAYER_TABLE "Players"
+#define CREATE_PLAYER_TABLE "CREATE TABLE "PLAYER_TABLE" (ID INTEGER PRIMARY KEY, PlayerName TEXT);"
 /*
 	// Shows how to use the Database namespace
 	// Just a really simple example
@@ -34,3 +37,4 @@ namespace Database
 	// Frees a table received from Table() above
 	void FreeTable(char **Result);
 }
+#endif

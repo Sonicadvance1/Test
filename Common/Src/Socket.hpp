@@ -15,6 +15,8 @@ class cSocket
 		u32 _IP;
 		// Our FD set
 		fd_set _Set;
+
+		struct sockaddr_in sa;
 	public:
 		cSocket();
 		cSocket(s32 Socket, u32 IP);
@@ -28,6 +30,9 @@ class cSocket
 		s32 Recv(u8 *buf, u32 size);
 		// Just returns the IP
 		u32 IP();
+
+		// Client only related
+		bool Connect(const char* IP);
 		
 		// Server only related
 		// Set our socket to listen for connections
@@ -35,5 +40,6 @@ class cSocket
 		// This accepts the new connection and returns a socket
 		// Returns 0 on error
 		cSocket* Accept();
+		bool Bind();
 };
 #endif

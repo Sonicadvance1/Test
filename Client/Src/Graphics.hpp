@@ -1,6 +1,7 @@
 #ifndef GRAPHICS_HPP_
 #define GRAPHICS_HPP_
 #include "Common.hpp"
+#include "Players.hpp"
 #include <GL/glxew.h>
 #include <GL/gl.h>
 #include <string>
@@ -34,6 +35,7 @@ namespace Graphics
 	GLuint LoadTexture(std::string filename);
 	void DrawRect(sfRect Quad, GLuint Tex);
 	void DrawCube(sfCube Cube, GLuint Tex);
+	void DrawPlayer(cPlayer *Player);
 	void Clear();
 	void Swap();
 }

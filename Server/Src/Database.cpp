@@ -33,11 +33,18 @@ namespace Database
 		if(err == SQLITE_CANTOPEN) // Doesn't exist
 		{
 			err = 0; // Reset error
+			// Open it Read and write to create it
 			err = sqlite3_open(DATABASE_FILENAME, &_Db);
 			if(!sqlerr(err))
 				return false;
-			const char PlayerTable[] = "CREATE TABLE "PLAYER_TABLE" (ID INTEGER PRIMARY KEY, PlayerName TEXT);";
-			Exec(PlayerTable);
+			// Now create our default tables
+			Exec(CREATE_PLAYER_TABLE);
+		}
+		else // Alright, we could open it, so it exists
+		{
+			sqlite3_close(_Db); // Close it
+			// Now reopen it read and write
+			err = sqlite3_open(DATABASE_FILENAME, &_Db);
 		}
 		if(!sqlerr(err))
 			return false;

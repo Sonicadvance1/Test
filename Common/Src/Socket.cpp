@@ -2,6 +2,7 @@
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <netinet/in.h>
+#include <netdb.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <string.h>
@@ -43,8 +44,6 @@ bool cSocket::Open(u16 Port)
 {
 	int turn_on_option_flag = 1;
 
-	struct sockaddr_in sa;
-
 	/* Clear it out */
 	memset(&sa, 0, sizeof(sa));
 
@@ -66,15 +65,18 @@ bool cSocket::Open(u16 Port)
 
 	setsockopt(_Socket, SOL_SOCKET, SO_REUSEADDR, &turn_on_option_flag, sizeof(turn_on_option_flag));
 
+	return true;
+}
+bool cSocket::Bind()
+{
 	/* bind() the socket to the interface */
-	if (bind(_Socket, (struct sockaddr *)&sa, sizeof(struct sockaddr)) < 0){
+	if (bind(_Socket, (struct sockaddr *)&sa, sizeof(sa)) < 0){
 		printf("Could not bind to port");
 		printf("Press [ENTER] to quit...");
 		return false;
 	}
 	return true;
 }
-
 // This will set the socket to listen for connections
 bool cSocket::Listen()
 {
@@ -137,4 +139,15 @@ cSocket* cSocket::Accept()
 u32 cSocket::IP()
 {
 	return _IP;
+}
+bool cSocket::Connect(const char* IP)
+{
+	struct hostent *server = gethostbyname(IP);
+	bcopy((char *)server->h_addr, (char *)&sa.sin_addr.s_addr, server->h_length);
+	if (connect(_Socket,(struct sockaddr *) &sa,sizeof(sa)) < 0)
+	{
+        printf("error connecting to %s\n", IP);
+		return false;
+	}
+    return true;
 }

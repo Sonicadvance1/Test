@@ -22,7 +22,6 @@ namespace RawReader
 	{
 		memcpy(*Buffer, &Variable, sizeof(Variable));
 		*Buffer += sizeof(Variable);
-		printf("Size: %d\n", sizeof(Variable));
 		return sizeof(Variable);
 	}
 }

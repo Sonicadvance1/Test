@@ -44,7 +44,6 @@ void CreateXWindow(void)
 	XMapRaised(dpy, win);
 	XSync(dpy, True);
 
-	xEventThread = std::thread(XEventThread);
 }
 
 void XEventThread()
@@ -58,7 +57,6 @@ void XEventThread()
 		for (u32 num_events = XPending(dpy); num_events > 0; --num_events)
 		{
 			XNextEvent(dpy, &event);
-			printf("%d\n", event.type);
 			switch (event.type)
 			{
 				// Is a key pressed?
@@ -93,7 +91,7 @@ void XEventThread()
 				break;
 			}
 		}
-		usleep(10000);
+		usleep(100);
 	}
 }
 
@@ -150,6 +148,7 @@ namespace Windows
 
 		CreateXWindow();
 		glXMakeCurrent(dpy, win, ctx);
+		xEventThread = std::thread(XEventThread);
 	}
 
 	void Shutdown()

@@ -44,3 +44,7 @@ cPlayer::~cPlayer()
 {
 	delete _Socket;
 }
+sCoord cPlayer::Coord()
+{
+	return _Coord;
+}

@@ -39,17 +39,21 @@ int main(int argc, char** argv)
 	if(!Database::Init())
 		return 1;
 		
-	// Bind our port
+	// Open the socket
 	if(!Listener.Open(serverPort))
 		return 2;
+	// Bind our socket
+	if(!Listener.Bind())
+		return 4;
 	// Set us to listen
 	if(!Listener.Listen())
 		return 3;
-	while(Running);
+	while(Running)
 	{
 		// Do we have a connection?
 		if(Listener.HasData())
 		{
+			printf("Yay, new person\n");
 			// Yes we do
 			cSocket *newfd = Listener.Accept();
 			// TODO: Currently setting ID to IP

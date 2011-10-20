@@ -11,14 +11,16 @@
 #include <GL/gl.h>
 
 bool Running = true;
-
+cPlayer *Player;
+cSocket Socket;
 void HandleInput()
 {
 	std::vector<Key_Type> _Status;
 	Windows::KeyLock.lock();
 	_Status = Windows::GetKeyStatus();
 	Windows::KeyLock.unlock();
-	s8 Direction = -1;
+	s8 Vx, Vy;
+	
 	// Loop through until empty
 	while(!_Status.empty())
 	{
@@ -26,21 +28,23 @@ void HandleInput()
 		switch(*it)
 		{
 			case Key_Type::KEY_W:
-				Direction = 0;
+				Vy++;
 			break;
 			case Key_Type::KEY_A:
-				Direction = 3;
+				Vx--;
 			break;
 			case Key_Type::KEY_S:
-				Direction = 2;
+				Vy--;
 			break;
 			case Key_Type::KEY_D:
-				Direction = 1;
+				Vx++;
 			break;
 		}
+		Player->Move(Vx, Vy);
 		printf("%d\n", *it);
 		_Status.erase(it);
 	}
+	// TODO: This needs to be moved to when things are received
 	/*[pkt header]  [Main Chunk                                                         ] [Footer]        
 	CC CC LL LL   FF II II DD DD DD DD DD DD DD DD DD DD DD DD DD DD DD DD DD DD DD DD L2 L2
 
@@ -51,7 +55,7 @@ void HandleInput()
 	DD = Data, could be a large amount.. may need to make LL more than 2 bytes in the future..
 	L2 = more security stuff. this is the length of the packet / 2 or the value of LL / 2. Mostly there to make sure people aren't mashing packets together and ensuring
         data read lengths aren't mixing together*/
-    if(Direction != -1)
+   /* if(Direction != -1)
     {
 		u8 *pPacket = new u8[512];
 		u8 *Start = pPacket;
@@ -67,23 +71,29 @@ void HandleInput()
 			printf("%02X", Start[a]);
 		printf("\n");
 		delete[] Start;
-	}
+	}*/
    
    
 }
 int main(int argc, char **argv)
 {
+	Socket.Open(7110);
+	Socket.Connect("127.0.0.1");
+	Player = new cPlayer();
 	cMap Test;
 	Windows::Init();
 	Graphics::Init();
 	Test.Load(5);
-	for(;Running;usleep(500000))
+	while(Running)
 	{
+		usleep(200);
 		HandleInput();
 		Graphics::Clear();
 		Test.Draw();
+		Graphics::DrawPlayer(Player);
 		Graphics::Swap();
 	}
 	Windows::Shutdown();
+	delete Player;
 	return 0;
 }

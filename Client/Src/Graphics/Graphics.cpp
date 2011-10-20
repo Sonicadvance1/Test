@@ -199,7 +199,7 @@ namespace Graphics
 		colour += 0.01f;
 		if(colour > 1.0f)
 			colour = 0.0f;
-			//glColor4f(colour, 1.0, 1.0, 1.0);
+			glColor4f(colour, 1.0, 1.0, 1.0);
 			glTexCoord2f(0.0f, 0.0f);
 			glVertex3f(Quad.x, Quad.y, -32); // Top Left
 			glTexCoord2f(1.0f, 0.0f);
@@ -211,7 +211,7 @@ namespace Graphics
 		glEnd();
 		glPopMatrix();
 	}
-	// TODO: Actually draw a cube!
+	
 	void DrawCube(sfCube Cube, GLuint Tex)
 	{
 		// we need to NOT use immediate mode, is super slow compared to other ways
@@ -335,7 +335,11 @@ namespace Graphics
 		glDisableClientState(GL_COLOR_ARRAY);
 		glDisableClientState(GL_VERTEX_ARRAY);
 	}
-
+	// TODO: Make this complete
+	void DrawPlayer(cPlayer *Player)
+	{
+		DrawRect({Player->Coord().X, Player->Coord().Y, 0.5, 2.0}, 0);
+	}
 	void Init()
 	{
 		if (glewInit() != GLEW_OK)
