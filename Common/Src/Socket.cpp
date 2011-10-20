@@ -97,7 +97,9 @@ bool cSocket::Listen()
 bool cSocket::HasData()
 {
 	fd_set tmpSet = _Set;
-    if(select(_Socket+1, &tmpSet, NULL, NULL, &Maxtimeout) == -1)
+	timeval tmpVal = Maxtimeout;
+	// Select has the ability to modify both the set and the timeval....WHICH IT DOES! D:<
+    if(select(_Socket+1, &tmpSet, NULL, NULL, &tmpVal) == -1)
     {
         printf("Couldn't select socket!\n");
         return false;
