@@ -1,4 +1,6 @@
 #include "Players.hpp"
+#include "PacketTypes.hpp"
+#include "RawReader.hpp"
 
 #include <map>
 namespace Players
@@ -25,6 +27,24 @@ void cPlayer::Player_Thread()
 			if(result < 0) // Recv error!
 				return; // Just return for now
 			printf("Sweet, We got something %d big\n", result);
+			switch(buf[0])
+			{
+				case CommandType::LOGIN:
+				{
+					u8 *Data = RawReader::GetData(buf);
+					u8 *Username = new u8[64];
+					u8 *Password = new u8[64];
+					RawReader::ReadString(&Data, Username);
+					RawReader::ReadString(&Data, Password);
+					printf("User Logging in with User/Pass %s:%s\n", Username, Password);
+					delete Username;
+					delete Password;
+				}
+				break;
+				default:
+					printf("We Don't know command: %02X\n", buf[0]);
+				break;
+			}
 		}
 	}
 }

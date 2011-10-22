@@ -7,7 +7,6 @@
 #include "Window.hpp"
 #include "Map.hpp"
 #include "Graphics.hpp"
-#include "RawReader.hpp"
 #include <GL/gl.h>
 
 bool Running = true;
@@ -83,14 +82,24 @@ void HandleInput()
 }
 int main(int argc, char **argv)
 {
-	if(argc < 2)
-		printf("Usage: %s <name>\n", argv[0]);
+	if(argc < 3)
+	{
+		printf("Usage: %s <name> <pass>\n", argv[0]);
+		return 0;
+	}
 	Socket.Open(7110);
 	Socket.Connect("127.0.0.1");
+	
+	u8 Data[64];
+	u8 *pData = &Data[0];
+	u32 DataSize = RawReader::WriteString(&pData, argv[1]);
+	// We need to change this so we aren't sending the password ASCII
+	DataSize += RawReader::WriteString(&pData, argv[2]);
+	printf("Datasize:%d\n", DataSize);
+	
 	u8 Packet[512];
 	u32 Size;
-	// We will need to finish this off with a password in the Data area
-	Size = RawReader::CreatePacket(&Packet[0], CommandType::LOGIN, SubCommandType::NONE, 0, (u8*)argv[1], strlen(argv[1]));
+	Size = RawReader::CreatePacket(&Packet[0], CommandType::LOGIN, SubCommandType::NONE, 0, Data, DataSize);
 	Socket.Send(Packet, Size);
 	
 	Player = new cPlayer();
