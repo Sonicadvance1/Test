@@ -118,6 +118,11 @@ s32 cSocket::Recv(u8 *buf, u32 size)
 	// Just return what recv does
     return recv(_Socket, buf, size, 0);
 }
+s32 cSocket::Send(u8 *buf, u32 size)
+{
+	// Just return what send does
+	return send(_Socket, buf, size, 0);
+}
 
 // Accepts new connections
 cSocket* cSocket::Accept()

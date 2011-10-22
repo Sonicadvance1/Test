@@ -28,6 +28,8 @@ class cSocket
 		bool HasData();
 		// Gets data from Socket
 		s32 Recv(u8 *buf, u32 size);
+		// Sends a packet away
+		s32 Send(u8 *buf, u32 size);
 		// Just returns the IP
 		u32 IP();
 

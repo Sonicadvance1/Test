@@ -45,16 +45,7 @@ void HandleInput()
 		_Status.erase(it);
 	}
 	// TODO: This needs to be moved to when things are received
-	/*[pkt header]  [Main Chunk                                                         ] [Footer]        
-	CC CC LL LL   FF II II DD DD DD DD DD DD DD DD DD DD DD DD DD DD DD DD DD DD DD DD L2 L2
-
-	CC = Command (this is the command the packet is trying to invoke)
-	LL = Packet length
-	FF = Function, If the command invoked has more than one function this can be used to distinguish them instead of a whole new command
-	II = ID of target client, (more of a security thing than anything, Tells the server / client [mostly server] who sent the packet without relying on socketID)
-	DD = Data, could be a large amount.. may need to make LL more than 2 bytes in the future..
-	L2 = more security stuff. this is the length of the packet / 2 or the value of LL / 2. Mostly there to make sure people aren't mashing packets together and ensuring
-        data read lengths aren't mixing together*/
+	
    /* if(Direction != -1)
     {
 		u8 *pPacket = new u8[512];
@@ -77,8 +68,16 @@ void HandleInput()
 }
 int main(int argc, char **argv)
 {
+	if(argc < 2)
+		printf("Usage: %s <name>\n", argv[0]);
 	Socket.Open(7110);
 	Socket.Connect("127.0.0.1");
+	u8 Packet[512];
+	u32 Size;
+	// We will need to finish this off with a password in the Data area
+	Size = RawReader::CreatePacket(&Packet[0], CommandType::LOGIN, SubCommandType::NONE, 0, (u8*)argv[1], strlen(argv[1]));
+	Socket.Send(Packet, Size);
+	
 	Player = new cPlayer();
 	cMap Test;
 	Windows::Init();

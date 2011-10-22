@@ -24,6 +24,7 @@ void cPlayer::Player_Thread()
 				return; // For now this will auto destroy the class
 			if(result < 0) // Recv error!
 				return; // Just return for now
+			printf("Sweet, We got something %d big\n", result);
 			printf("%s\n", buf);
 		}
 	}
