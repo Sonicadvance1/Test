@@ -25,7 +25,6 @@ void cPlayer::Player_Thread()
 			if(result < 0) // Recv error!
 				return; // Just return for now
 			printf("Sweet, We got something %d big\n", result);
-			printf("%s\n", buf);
 		}
 	}
 }

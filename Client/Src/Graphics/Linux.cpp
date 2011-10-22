@@ -17,7 +17,7 @@
 	XSetWindowAttributes attr;
 	std::thread xEventThread;
 	
-	std::vector<Key_Type> _KeyStatus;
+	std::vector<u32> _KeyStatus;
 
 void XEventThread();
 void CreateXWindow();
@@ -29,7 +29,7 @@ void CreateXWindow(void)
 	// Setup window attributes
 	attr.colormap = XCreateColormap(dpy,
 			parent, vi->visual, AllocNone);
-	attr.event_mask = KeyPressMask | StructureNotifyMask | FocusChangeMask;
+	attr.event_mask = KeyPressMask | StructureNotifyMask | FocusChangeMask | ButtonPressMask | ButtonReleaseMask | ButtonMotionMask;
 	attr.background_pixel = BlackPixel(dpy, screen);
 	attr.border_pixel = 0;
 
@@ -49,6 +49,7 @@ void CreateXWindow(void)
 void XEventThread()
 {
 	// We will get key events and stuff here
+	bool MousePressed[3]; // Mouse Press status
 	while(Running)
 	{
 		XEvent event;
@@ -82,6 +83,29 @@ void XEventThread()
 					}
 					Windows::KeyLock.unlock();
 				}
+				break;
+				case ButtonPress: // Mouse Button Press
+					MousePressed[event.xbutton.button] = true;
+					switch(event.xbutton.button)
+					{
+						case 1: //Left
+							_KeyStatus.push_back(Key_Type::MOUSE_1);
+						break;
+						case 2: // Middle
+							_KeyStatus.push_back(Key_Type::MOUSE_2);
+						break;
+						case 3: // Right
+							_KeyStatus.push_back(Key_Type::MOUSE_3);
+						break;
+					}
+					_KeyStatus.push_back(event.xbutton.x);
+					_KeyStatus.push_back(event.xbutton.y);
+				break;
+				case ButtonRelease: // Mouse Button Release
+					MousePressed[event.xbutton.button] = false;
+				break;
+				case MotionNotify: // Mouse Movement
+					// We don't handle this yet
 				break;
 				case ClientMessage: // For Window close event
 				{
@@ -172,9 +196,9 @@ namespace Windows
 	{
 		glXSwapBuffers(dpy, win);
 	}
-	std::vector<Key_Type> GetKeyStatus()
+	std::vector<u32> GetKeyStatus()
 	{
-		std::vector<Key_Type> tmp = _KeyStatus;
+		std::vector<u32> tmp = _KeyStatus;
 		_KeyStatus.clear();
 		return tmp;
 	}

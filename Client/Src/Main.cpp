@@ -15,7 +15,7 @@ cPlayer *Player;
 cSocket Socket;
 void HandleInput()
 {
-	std::vector<Key_Type> _Status;
+	std::vector<u32> _Status;
 	Windows::KeyLock.lock();
 	_Status = Windows::GetKeyStatus();
 	Windows::KeyLock.unlock();
@@ -24,8 +24,7 @@ void HandleInput()
 	// Loop through until empty
 	while(!_Status.empty())
 	{
-		std::vector<Key_Type>::iterator it = _Status.begin();
-		switch(*it)
+		switch(_Status[0])
 		{
 			case Key_Type::KEY_W:
 				Vy++;
@@ -39,10 +38,26 @@ void HandleInput()
 			case Key_Type::KEY_D:
 				Vx++;
 			break;
+			case Key_Type::MOUSE_1:
+			case Key_Type::MOUSE_2:
+			case Key_Type::MOUSE_3:
+			{
+				// After initial one on mouse, we have two more in the array for X and Y coordinates of mouse press.
+				u32 X, Y;
+				X = _Status[1];
+				Y = _Status[2];
+				printf("Clicked %d at %d %d\n", _Status[0], X, Y);
+				_Status.erase(_Status.begin(), _Status.begin() + 2);
+				
+			}
+			break;
+			default:
+				printf("Unknown Key Function: %d\n", _Status[0]);
+			break;
+			
 		}
 		Player->Move(Vx, Vy);
-		printf("%d\n", *it);
-		_Status.erase(it);
+		_Status.erase(_Status.begin());
 	}
 	// TODO: This needs to be moved to when things are received
 	

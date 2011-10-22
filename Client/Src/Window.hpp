@@ -6,12 +6,15 @@
 #define DEFAULT_WIDTH 1024
 #define DEFAULT_HEIGHT 768
 
-enum class Key_Type
+enum Key_Type
 {
 	KEY_W = 0,
 	KEY_A = 1,
 	KEY_S = 2,
 	KEY_D = 3,
+	MOUSE_1 = 4,
+	MOUSE_2 = 5,
+	MOUSE_3 = 6
 };
 
 namespace Windows
@@ -26,6 +29,6 @@ namespace Windows
 	void Shutdown();
 	void SwapBuffers();
 	
-	std::vector<Key_Type> GetKeyStatus();
+	std::vector<u32> GetKeyStatus();
 }
 #endif
