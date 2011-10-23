@@ -28,7 +28,7 @@ namespace RawReader
 	// Writes a string to the buffer
 	// First writes the size of the string
 	// Then the actual string
-	u32 WriteString(u8 **Buffer, const char *Str);
+	u32 WriteString(u8 **Buffer, const char *Str, s32 Size = -1);
 	
 	u16 ReadString(u8 **Buffer, u8 *Out);
 

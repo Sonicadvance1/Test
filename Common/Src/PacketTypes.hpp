@@ -5,6 +5,7 @@
 enum class CommandType : u16
 {
 	LOGIN = 0x0,
+	CREATE_ACCOUNT,
 
 	NONE = 0xFFFF // End of types
 };

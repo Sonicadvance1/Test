@@ -1,4 +1,6 @@
-set(SRCS	Src/Map.cpp
+set(SRCS	Src/Crypto.cpp
+			Src/Crypto/SHA256.cpp
+			Src/Map.cpp
 			Src/Players.cpp
 			Src/RawReader.cpp
 			Src/Socket.cpp

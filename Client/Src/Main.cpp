@@ -7,6 +7,7 @@
 #include "Window.hpp"
 #include "Map.hpp"
 #include "Graphics.hpp"
+#include "Crypto.hpp"
 #include <GL/gl.h>
 
 bool Running = true;
@@ -91,11 +92,13 @@ int main(int argc, char **argv)
 	Socket.Connect("127.0.0.1");
 	
 	u8 Data[64];
+	u8 HashPass[32];
 	u8 *pData = &Data[0];
 	u32 DataSize = RawReader::WriteString(&pData, argv[1]);
-	// We need to change this so we aren't sending the password ASCII
-	DataSize += RawReader::WriteString(&pData, argv[2]);
-	printf("Datasize:%d\n", DataSize);
+	// Encrypt our password
+	Crypto::Encrypt(CryptoType::SHA256, argv[2], strlen(argv[2]), HashPass);
+	DataSize += RawReader::WriteString(&pData, (char*)HashPass);
+	printf("\nDatasize:%d\n", DataSize);
 	
 	u8 Packet[512];
 	u32 Size;

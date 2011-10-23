@@ -6,17 +6,22 @@ namespace RawReader
 	// Writes a string to the buffer
 	// First writes the size of the string
 	// Then the actual string
-	u32 WriteString(u8 **Buffer, const char *Str)
+	u32 WriteString(u8 **Buffer, const char *Str, s32 Size)
 	{
-		Write<u16>(Buffer, strlen(Str));
-		memcpy(*Buffer, Str, strlen(Str));
-		*Buffer += strlen(Str);
-		return strlen(Str) + 2;
+		u16 StrSize;
+		if(Size == -1) // Just a null terminated string
+			StrSize = strlen(Str);
+		else // a Set Size
+			StrSize = Size;
+		Write<u16>(Buffer, StrSize);
+		memcpy(*Buffer, Str, StrSize);
+		*Buffer += StrSize;
+		return StrSize + 2;
 	}
 	u16 ReadString(u8 **Buffer, u8 *Out)
 	{
 		u16 Size = Read<u16>(Buffer);
-		printf("Size is %d\n", Size);
+		printf("Size is %d:%p\n", Size, *Buffer);
 		memcpy(Out, *Buffer, Size);
 		Out[Size + 1] = '\0'; // Null Terminate it
 		*Buffer += Size;
