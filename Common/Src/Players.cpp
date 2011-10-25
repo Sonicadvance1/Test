@@ -5,16 +5,23 @@ namespace Players
 {
 	// A Map makes this really easy
 	std::map<u32, cPlayer*> _Players;
+
+	// Lock since we access this from multiple threads
+	std::mutex _Lock;
 	
 	void InsertPlayer(const u32 ID, cPlayer *Player)
 	{
 		// again, makes this really simple
+		_Lock.lock();
 		_Players[ID] = Player;
+		_Lock.unlock();
 	}
 	void RemovePlayer(const u32 ID)
 	{
 		// Removing player from the map is really easy
+		_Lock.lock();
 		_Players.erase(ID);
+		_Lock.unlock();
 	}
 }
 
@@ -32,6 +39,7 @@ cPlayer::cPlayer(cSocket *Socket)
 cPlayer::~cPlayer()
 {
 	delete _Socket;
+	_t.join();
 }
 sCoord cPlayer::Coord()
 {

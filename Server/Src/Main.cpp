@@ -10,6 +10,7 @@
 #include <time.h>
 #include <string.h>
 #include <signal.h>
+#include <vector>
 
 #include "Players.hpp"
 #include "structs.h"
@@ -26,6 +27,8 @@ unsigned short serverPort = 7110;
 int blockConnections = 0;
 unsigned blockTick = 0;
 time_t servertime;
+std::vector<cPlayer*> Deletions;
+std::mutex mDeletions;
 
 void cPlayer::Player_Thread()
 {
@@ -56,11 +59,12 @@ void cPlayer::Player_Thread()
 
 					sprintf(Command, "SELECT * FROM "PLAYER_TABLE" WHERE PlayerName='%s' AND Password='%s'", Username, Password);
 					Database::Table(Command, &Results, &Rows, &Cols);
+
+					u8 Packet[256];
 					if(Rows > 1) // Found our user
 					{
 						// Should send all of our shit here
 						printf("Found User %s\n", Username);
-						u8 Packet[256];
 						u32 OldID = _ID;
 						_ID = atoi(Results[Cols]); // Gives us the First column in the returned array which is ID!
 						// Create the Login packet and send it
@@ -73,8 +77,23 @@ void cPlayer::Player_Thread()
 					}
 					else // No user
 					{
-						// TODO: Need to eject the player and clean up here
+						printf("Couldn't find User %s\n", Username);
+						// Send the user a Login packet with a zero ID signifying we couldn't find that account
+						int Size = RawReader::CreatePacket(Packet, CommandType::LOGIN, SubCommandType::NONE, 0, 0, 0);
+						_Socket->Send(Packet, Size);
+						// Remove the player from the array
+						Players::RemovePlayer(_ID);
+						// Now clean up this object
+						mDeletions.lock();
+						// Add this to the vector so we can delete it
+						Deletions.push_back(this);
+						mDeletions.unlock();
+						Database::FreeTable(Results);
+						delete Username;
+						delete Password;
+						return;
 					}
+					// TODO: Grab player shit from the database
 
 					Database::FreeTable(Results);
 					delete Username;
@@ -128,6 +147,15 @@ int main(int argc, char** argv)
 			// TODO: Currently setting ID to IP
 			Players::InsertPlayer(newfd->IP(), new cPlayer(newfd));
 		}
+		// Check for disconnected people
+		mDeletions.lock();
+		if(Deletions.size() > 0) // yay, people to remove
+		{
+			for(int a = 0; a < Deletions.size(); ++a)
+				delete Deletions[a];
+			Deletions.clear();
+		}
+		mDeletions.unlock();
 	}
 	// Shutdown our Database
 	Database::Shutdown();

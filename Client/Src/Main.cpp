@@ -31,6 +31,12 @@ void cPlayer::Player_Thread()
 			{
 				case CommandType::LOGIN: // Return Login Packet packet
 					CurrentPlayerID = RawReader::GetID(buf);
+					if(CurrentPlayerID == 0) // zero means error
+					{
+						printf("Server couldn't find this user. Exiting for now\n");
+						Running = false;
+						return;
+					}
 					Players::InsertPlayer(CurrentPlayerID, this); // Since we aren't inserted in to the array at all until we log in.
 				break;
 				default:

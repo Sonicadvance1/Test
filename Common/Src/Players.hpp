@@ -22,7 +22,7 @@ class cPlayer
 	// Player Socket
 		cSocket *_Socket;
 	public:
-		cPlayer() {};
+		cPlayer() {}
 		cPlayer(cSocket *Socket);
 		~cPlayer();
 		sCoord Coord();
