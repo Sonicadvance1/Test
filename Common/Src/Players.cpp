@@ -11,6 +11,11 @@ namespace Players
 		// again, makes this really simple
 		_Players[ID] = Player;
 	}
+	void RemovePlayer(const u32 ID)
+	{
+		// Removing player from the map is really easy
+		_Players.erase(ID);
+	}
 }
 
 cPlayer::cPlayer(cSocket *Socket)

@@ -62,8 +62,14 @@ void cPlayer::Player_Thread()
 						// Should send all of our shit here
 						printf("Found User %s\n", Username);
 						u8 Packet[256];
-						int Size = RawReader::CreatePacket(Packet, CommandType::LOGIN, SubCommandType::NONE, /* Fill in with ID */ 1, 0, 0);
+						u32 OldID = _ID;
+						_ID = atoi(Results[Cols]); // Gives us the First column in the returned array which is ID!
+						// Create the Login packet and send it
+						int Size = RawReader::CreatePacket(Packet, CommandType::LOGIN, SubCommandType::NONE, _ID, 0, 0);
 						_Socket->Send(Packet, Size);
+						// Now we need to move the player to the new map location
+						Players::RemovePlayer(OldID);
+						Players::InsertPlayer(_ID, this);
 					}
 					else // No user
 					{

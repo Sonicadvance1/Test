@@ -37,6 +37,7 @@ namespace Players
 {
 	// This inserts a player in to the global namespace.
 	void InsertPlayer(const u32 ID, cPlayer *Player);
+	void RemovePlayer(const u32 ID);
 }
 
 #endif
