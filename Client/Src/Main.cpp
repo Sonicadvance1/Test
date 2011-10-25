@@ -35,7 +35,7 @@ void cPlayer::Player_Thread()
 }
 
 cPlayer *Player;
-cSocket Socket;
+cSocket *Socket;
 void HandleInput()
 {
 	std::vector<u32> _Status;
@@ -111,8 +111,11 @@ int main(int argc, char **argv)
 		printf("Usage: %s <name> <pass>\n", argv[0]);
 		return 0;
 	}
-	Socket.Open(7110);
-	Socket.Connect("127.0.0.1");
+	Socket = new cSocket();
+	Socket->Open(7110);
+	Socket->Connect("127.0.0.1");
+
+	Player = new cPlayer(Socket);
 	
 	u8 Data[128];
 	u8 RawHashPass[32];
@@ -128,9 +131,8 @@ int main(int argc, char **argv)
 	u8 Packet[512];
 	u32 Size;
 	Size = RawReader::CreatePacket(&Packet[0], CommandType::LOGIN, SubCommandType::NONE, 0, Data, DataSize);
-	Socket.Send(Packet, Size);
+	Socket->Send(Packet, Size);
 	
-	Player = new cPlayer();
 	cMap Test;
 	Windows::Init();
 	Graphics::Init();

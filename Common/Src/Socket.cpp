@@ -156,5 +156,6 @@ bool cSocket::Connect(const char* IP)
         printf("error connecting to %s\n", IP);
 		return false;
 	}
+	FD_SET(_Socket, &_Set);
     return true;
 }
