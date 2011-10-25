@@ -40,7 +40,7 @@ void cPlayer::Player_Thread()
 			if(result < 0) // Recv error!
 				return; // Just return for now
 			printf("Sweet, We got something %d big\n", result);
-			switch(buf[0])
+			switch(RawReader::GetCommand(buf))
 			{
 				case CommandType::LOGIN:
 				{
@@ -50,7 +50,6 @@ void cPlayer::Player_Thread()
 					RawReader::ReadString(&Data, Username);
 					RawReader::ReadString(&Data, Password); // Should be a hash
 					
-					// TODO: Send back player ID
 					char Command[512];
 					char **Results;
 					int Rows, Cols;
@@ -70,6 +69,7 @@ void cPlayer::Player_Thread()
 						// Now we need to move the player to the new map location
 						Players::RemovePlayer(OldID);
 						Players::InsertPlayer(_ID, this);
+						
 					}
 					else // No user
 					{
@@ -87,7 +87,7 @@ void cPlayer::Player_Thread()
 				}
 				break;
 				default:
-					printf("We Don't know command: %02X\n", buf[0]);
+					printf("We Don't know command: %02X\n", RawReader::GetCommand(buf));
 				break;
 			}
 		}

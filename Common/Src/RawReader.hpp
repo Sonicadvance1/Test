@@ -46,7 +46,16 @@ namespace RawReader
 	*/
 	u32 CreatePacket(u8 *Buffer, CommandType Command, SubCommandType SubCommand, u16 ID, u8 *Data, u32 DataSize);
 	
+
+	// Just gets the Command
+	CommandType GetCommand(u8* Buffer);
+	// Just gets the SubCommand
+	SubCommandType GetSubCommand(u8* Buffer);
+	// Just gets the ID
+	u16 GetID(u8* Buffer);
 	// Just gets a pointer to the Data section
 	u8* GetData(u8 *Buffer);
+	// Just gets the Datasize
+	u32 GetDataSize(u8 *Buffer);
 }
 #endif

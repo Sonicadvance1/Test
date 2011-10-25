@@ -45,9 +45,36 @@ namespace RawReader
 		memcpy(&Buffer[7 + DataSize + 1], &HalfPacketSize, 2);
 		return PacketSize;
 	}
+	// Just gets the Command
+	CommandType GetCommand(u8* Buffer)
+	{
+		// Command is at offset 0-1
+		return (CommandType)*Buffer;
+	}
+	// Just gets the SubCommand
+	SubCommandType GetSubCommand(u8* Buffer)
+	{
+		// SubCommand is at offset 4
+		return (SubCommandType)Buffer[4];
+	}
+	// Just gets the ID
+	u16 GetID(u8* Buffer)
+	{
+		// ID is at offset 5-6
+		return (u16)*(Buffer + 5);
+	}
+
 	// Just gets a pointer to the Data section
 	u8* GetData(u8 *Buffer)
 	{
 		return &Buffer[7];
+	}
+	// Just gets the Datasize
+	u32 GetDataSize(u8 *Buffer)
+	{
+		// Datasize is just the packetsize - 9
+		// PacketSize is offset 2-3
+		u16 PacketSize = (u16)*(Buffer + 2);
+		return PacketSize - 9;
 	}
 }

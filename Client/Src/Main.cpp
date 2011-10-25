@@ -11,6 +11,9 @@
 #include <GL/gl.h>
 
 bool Running = true;
+cPlayer *Player;
+cSocket *Socket;
+u32 CurrentPlayerID;
 void cPlayer::Player_Thread()
 {
 	u8 buf[512];
@@ -24,18 +27,20 @@ void cPlayer::Player_Thread()
 			if(result < 0) // Recv error!
 				return; // Just return for now
 			printf("Sweet, We got something %d big\n", result);
-			switch(buf[0])
+			switch(RawReader::GetCommand(buf))
 			{
+				case CommandType::LOGIN: // Return Login Packet packet
+					CurrentPlayerID = RawReader::GetID(buf);
+					Players::InsertPlayer(CurrentPlayerID, this); // Since we aren't inserted in to the array at all until we log in.
+				break;
 				default:
-					printf("We Don't know command: %02X\n", buf[0]);
+					printf("We Don't know command: %02X\n", RawReader::GetCommand(buf));
 				break;
 			}
 		}
 	}
 }
 
-cPlayer *Player;
-cSocket *Socket;
 void HandleInput()
 {
 	std::vector<u32> _Status;
