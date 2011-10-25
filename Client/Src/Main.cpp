@@ -11,6 +11,29 @@
 #include <GL/gl.h>
 
 bool Running = true;
+void cPlayer::Player_Thread()
+{
+	u8 buf[512];
+	for(;;)
+	{
+		if(_Socket->HasData())
+		{
+			s32 result = _Socket->Recv( buf, sizeof(buf));
+			if(result == 0) // Player closed connection
+				return; // For now this will auto destroy the class
+			if(result < 0) // Recv error!
+				return; // Just return for now
+			printf("Sweet, We got something %d big\n", result);
+			switch(buf[0])
+			{
+				default:
+					printf("We Don't know command: %02X\n", buf[0]);
+				break;
+			}
+		}
+	}
+}
+
 cPlayer *Player;
 cSocket Socket;
 void HandleInput()
@@ -91,14 +114,16 @@ int main(int argc, char **argv)
 	Socket.Open(7110);
 	Socket.Connect("127.0.0.1");
 	
-	u8 Data[64];
-	u8 HashPass[32];
+	u8 Data[128];
+	u8 RawHashPass[32];
+	u8 HashPass[64];
 	u8 *pData = &Data[0];
 	u32 DataSize = RawReader::WriteString(&pData, argv[1]);
 	// Encrypt our password
-	Crypto::Encrypt(CryptoType::SHA256, argv[2], strlen(argv[2]), HashPass);
+	Crypto::Encrypt(CryptoType::SHA256, argv[2], strlen(argv[2]), RawHashPass);
+	for(int a = 0; a < 32; ++a)
+		sprintf((char*)HashPass, "%s%02X", (a == 0 ? "" : (char*)HashPass), RawHashPass[a]);
 	DataSize += RawReader::WriteString(&pData, (char*)HashPass);
-	printf("\nDatasize:%d\n", DataSize);
 	
 	u8 Packet[512];
 	u32 Size;
