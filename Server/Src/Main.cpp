@@ -39,14 +39,17 @@ void cPlayer::Player_Thread()
 		{
 			s32 result = _Socket->Recv( buf, sizeof(buf));
 			if(result == 0) // Player closed connection
-				return; // For now this will auto destroy the class
+				goto end; // For now this will auto destroy the class
 			if(result < 0) // Recv error!
-				return; // Just return for now
+				goto end; // Just return for now
 			printf("Sweet, We got something %d big\n", result);
 			switch(RawReader::GetCommand(buf))
 			{
 				case CommandType::LOGIN:
 				{
+					u16 FullPacketSize = RawReader::GetFullSize(buf);
+					if(FullPacketSize != result)
+						goto end;
 					u8 *Data = RawReader::GetData(buf);
 					u8 *Username = new u8[64];
 					u8 *Password = new u8[65];
@@ -73,6 +76,20 @@ void cPlayer::Player_Thread()
 						// Now we need to move the player to the new map location
 						Players::RemovePlayer(OldID);
 						Players::InsertPlayer(_ID, this);
+						SetName(Username);
+						// Send player all connected Users
+						std::map<u32, cPlayer*> PlayerArray = Players::GetArray();
+						std::map<u32, cPlayer*>::iterator it;
+						u8 SubData[64];
+						for(it = PlayerArray.begin(); it != PlayerArray.end(); ++it)
+						{
+							if(it->first < MAXUSERS && it->first != _ID) // Make sure it isn't a client that isn't logged in and isn't ourselves
+							{
+								int SubDataSize = RawReader::WriteString((u8**)&SubData, (const char*)it->second->GetName(), strlen((const char*)it->second->GetName()));
+								int Size = RawReader::CreatePacket(Packet, CommandType::PLAYERDATA, SubCommandType::PLAYERDATA_NAME, it->first, SubData, SubDataSize);
+								_Socket->Send(Packet, Size);
+							}
+						}
 						
 					}
 					else // No user
@@ -81,17 +98,10 @@ void cPlayer::Player_Thread()
 						// Send the user a Login packet with a zero ID signifying we couldn't find that account
 						int Size = RawReader::CreatePacket(Packet, CommandType::LOGIN, SubCommandType::NONE, 0, 0, 0);
 						_Socket->Send(Packet, Size);
-						// Remove the player from the array
-						Players::RemovePlayer(_ID);
-						// Now clean up this object
-						mDeletions.lock();
-						// Add this to the vector so we can delete it
-						Deletions.push_back(this);
-						mDeletions.unlock();
 						Database::FreeTable(Results);
 						delete Username;
 						delete Password;
-						return;
+						goto end;
 					}
 					// TODO: Grab player shit from the database
 
@@ -111,6 +121,16 @@ void cPlayer::Player_Thread()
 			}
 		}
 	}
+	end:
+	printf("Player %s left!\n", GetName());
+	// Remove the player from the array
+	Players::RemovePlayer(_ID);
+	// Now clean up this object
+	mDeletions.lock();
+	// Add this to the vector so we can delete it
+	Deletions.push_back(this);
+	mDeletions.unlock();
+	
 }
 
 void Sighandler(int sig)
@@ -152,7 +172,11 @@ int main(int argc, char** argv)
 		if(Deletions.size() > 0) // yay, people to remove
 		{
 			for(int a = 0; a < Deletions.size(); ++a)
+			{
+				
+				memset(&Deletions[a], sizeof(Deletions[a]), 0);
 				delete Deletions[a];
+			}
 			Deletions.clear();
 		}
 		mDeletions.unlock();

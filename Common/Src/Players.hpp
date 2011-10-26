@@ -3,6 +3,8 @@
 #include "Common.hpp"
 #include "Socket.hpp"
 #include <thread>
+#include <map>
+#include <string.h>
 
 #define MOVE_AMOUNT 0.2
 
@@ -12,9 +14,9 @@ class cPlayer
 	// Coordinates
 		sCoord _Coord;
 	// Player ID
-	// Right now it is just our IP address
-	// Later it will be a ID number tied to the username
 		u32 _ID;
+	// Player Name
+		u8 _Name[64];
 	// Thread object
 		std::thread _t;
 	//Thread Function
@@ -31,6 +33,14 @@ class cPlayer
 			_Coord.Y += VelocityY * MOVE_AMOUNT;
 			_Coord.X += VelocityX * MOVE_AMOUNT;
 		}
+		void SetName(u8 *Name)
+		{
+			strcpy((char*)_Name, (const char*)Name);
+		}
+		u8* GetName()
+		{
+			return _Name;
+		}
 	
 };
 namespace Players
@@ -38,6 +48,7 @@ namespace Players
 	// This inserts a player in to the global namespace.
 	void InsertPlayer(const u32 ID, cPlayer *Player);
 	void RemovePlayer(const u32 ID);
+	std::map<u32, cPlayer*> GetArray();
 }
 
 #endif

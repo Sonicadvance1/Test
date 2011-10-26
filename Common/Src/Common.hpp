@@ -1,6 +1,7 @@
 #ifndef COMMON_HPP_
 #define COMMON_HPP_
 // Some defines
+#define MAXUSERS 65535
 
 //unsigned types
 typedef unsigned char u8;

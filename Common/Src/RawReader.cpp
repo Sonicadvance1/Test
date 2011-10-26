@@ -23,7 +23,7 @@ namespace RawReader
 		u16 Size = Read<u16>(Buffer);
 		printf("Size is %d:%p\n", Size, *Buffer);
 		memcpy(Out, *Buffer, Size);
-		Out[Size + 1] = '\0'; // Null Terminate it
+		Out[Size] = '\0'; // Null Terminate it
 		*Buffer += Size;
 		return Size;
 	}
@@ -44,6 +44,11 @@ namespace RawReader
 			memcpy(&Buffer[7], Data, DataSize);
 		memcpy(&Buffer[7 + DataSize + 1], &HalfPacketSize, 2);
 		return PacketSize;
+	}
+	// Just gets the packets expected size
+	u16 GetFullSize(u8* Buffer)
+	{
+		return (u16)*(Buffer + 2);
 	}
 	// Just gets the Command
 	CommandType GetCommand(u8* Buffer)

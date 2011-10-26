@@ -20,8 +20,16 @@ namespace Players
 	{
 		// Removing player from the map is really easy
 		_Lock.lock();
-		_Players.erase(ID);
+		if(_Players.erase(ID) != 1)
+			printf("Could erase player by ID: %d\n", ID);
 		_Lock.unlock();
+	}
+	std::map<u32, cPlayer*> GetArray()
+	{
+		_Lock.lock();
+		std::map<u32, cPlayer*> Vector = _Players;
+		_Lock.unlock();
+		return Vector;
 	}
 }
 

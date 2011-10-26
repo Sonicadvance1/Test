@@ -17,15 +17,15 @@ u32 CurrentPlayerID;
 void cPlayer::Player_Thread()
 {
 	u8 buf[512];
-	for(;;)
+	while(Running)
 	{
 		if(_Socket->HasData())
 		{
 			s32 result = _Socket->Recv( buf, sizeof(buf));
 			if(result == 0) // Player closed connection
-				return; // For now this will auto destroy the class
+				goto end; // For now this will auto destroy the class
 			if(result < 0) // Recv error!
-				return; // Just return for now
+				goto end; // Just return for now
 			printf("Sweet, We got something %d big\n", result);
 			switch(RawReader::GetCommand(buf))
 			{
@@ -35,16 +35,21 @@ void cPlayer::Player_Thread()
 					{
 						printf("Server couldn't find this user. Exiting for now\n");
 						Running = false;
-						return;
+						goto end;
 					}
 					Players::InsertPlayer(CurrentPlayerID, this); // Since we aren't inserted in to the array at all until we log in.
 				break;
+				case CommandType::PLAYERDATA:
+				case CommandType::MOVEMENT:
 				default:
 					printf("We Don't know command: %02X\n", RawReader::GetCommand(buf));
 				break;
 			}
 		}
 	}
+	end:
+	Players::RemovePlayer(CurrentPlayerID);
+	Running = false;
 }
 
 void HandleInput()
