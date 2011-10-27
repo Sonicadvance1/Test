@@ -25,6 +25,7 @@ class cPlayer
 		cSocket *_Socket;
 	public:
 		cPlayer() {}
+		cPlayer(u32 ID) { _ID = ID; }
 		cPlayer(cSocket *Socket);
 		~cPlayer();
 		sCoord Coord();

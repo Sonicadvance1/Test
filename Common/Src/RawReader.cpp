@@ -45,6 +45,18 @@ namespace RawReader
 		memcpy(&Buffer[7 + DataSize + 1], &HalfPacketSize, 2);
 		return PacketSize;
 	}
+	// Gets the next packet
+	bool NextPacket(u8** Buffer, s32 *CurrentLoc, s32 MaxSize)
+	{
+		u16 PacketSize = (u16)*(*Buffer + 2);
+		*CurrentLoc += PacketSize;
+		if(*CurrentLoc == MaxSize)
+			return false;
+		else
+			*Buffer += PacketSize;
+		return true;
+		
+	}
 	// Just gets the packets expected size
 	u16 GetFullSize(u8* Buffer)
 	{

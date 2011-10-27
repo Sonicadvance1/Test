@@ -33,92 +33,106 @@ std::mutex mDeletions;
 void cPlayer::Player_Thread()
 {
 	u8 buf[512];
+	u8 *pbuf = buf;
+	s32 CurrentLoc;
 	for(;;)
 	{
 		if(_Socket->HasData())
 		{
+			pbuf = buf;
+			CurrentLoc = 0;
+			
 			s32 result = _Socket->Recv( buf, sizeof(buf));
 			if(result == 0) // Player closed connection
 				goto end; // For now this will auto destroy the class
 			if(result < 0) // Recv error!
 				goto end; // Just return for now
 			printf("Sweet, We got something %d big\n", result);
-			switch(RawReader::GetCommand(buf))
+			do
 			{
-				case CommandType::LOGIN:
+				switch(RawReader::GetCommand(pbuf))
 				{
-					u16 FullPacketSize = RawReader::GetFullSize(buf);
-					if(FullPacketSize != result)
-						goto end;
-					u8 *Data = RawReader::GetData(buf);
-					u8 *Username = new u8[64];
-					u8 *Password = new u8[65];
-					RawReader::ReadString(&Data, Username);
-					RawReader::ReadString(&Data, Password); // Should be a hash
-					
-					char Command[512];
-					char **Results;
-					int Rows, Cols;
-
-					sprintf(Command, "SELECT * FROM "PLAYER_TABLE" WHERE PlayerName='%s' AND Password='%s'", Username, Password);
-					Database::Table(Command, &Results, &Rows, &Cols);
-
-					u8 Packet[256];
-					if(Rows > 1) // Found our user
+					case CommandType::LOGIN:
 					{
-						// Should send all of our shit here
-						printf("Found User %s\n", Username);
-						u32 OldID = _ID;
-						_ID = atoi(Results[Cols]); // Gives us the First column in the returned array which is ID!
-						// Create the Login packet and send it
-						int Size = RawReader::CreatePacket(Packet, CommandType::LOGIN, SubCommandType::NONE, _ID, 0, 0);
-						_Socket->Send(Packet, Size);
-						// Now we need to move the player to the new map location
-						Players::RemovePlayer(OldID);
-						Players::InsertPlayer(_ID, this);
-						SetName(Username);
-						// Send player all connected Users
-						std::map<u32, cPlayer*> PlayerArray = Players::GetArray();
-						std::map<u32, cPlayer*>::iterator it;
-						u8 SubData[64];
-						for(it = PlayerArray.begin(); it != PlayerArray.end(); ++it)
-						{
-							if(it->first < MAXUSERS && it->first != _ID) // Make sure it isn't a client that isn't logged in and isn't ourselves
-							{
-								int SubDataSize = RawReader::WriteString((u8**)&SubData, (const char*)it->second->GetName(), strlen((const char*)it->second->GetName()));
-								int Size = RawReader::CreatePacket(Packet, CommandType::PLAYERDATA, SubCommandType::PLAYERDATA_NAME, it->first, SubData, SubDataSize);
-								_Socket->Send(Packet, Size);
-							}
-						}
+						u16 FullPacketSize = RawReader::GetFullSize(pbuf);
+						if(FullPacketSize != result)
+							goto end;
+						u8 *Data = RawReader::GetData(pbuf);
+						u8 *Username = new u8[64];
+						u8 *Password = new u8[65];
+						RawReader::ReadString(&Data, Username);
+						RawReader::ReadString(&Data, Password); // Should be a hash
 						
-					}
-					else // No user
-					{
-						printf("Couldn't find User %s\n", Username);
-						// Send the user a Login packet with a zero ID signifying we couldn't find that account
-						int Size = RawReader::CreatePacket(Packet, CommandType::LOGIN, SubCommandType::NONE, 0, 0, 0);
-						_Socket->Send(Packet, Size);
-						Database::FreeTable(Results);
-						delete Username;
-						delete Password;
-						goto end;
-					}
-					// TODO: Grab player shit from the database
+						char Command[512];
+						char **Results;
+						int Rows, Cols;
 
-					Database::FreeTable(Results);
-					delete Username;
-					delete Password;
+						sprintf(Command, "SELECT * FROM "PLAYER_TABLE" WHERE PlayerName='%s' AND Password='%s'", Username, Password);
+						Database::Table(Command, &Results, &Rows, &Cols);
+
+						u8 Packet[256];
+						if(Rows > 1) // Found our user
+						{
+							// Should send all of our shit here
+							printf("Found User %s\n", Username);
+							u32 OldID = _ID;
+							_ID = atoi(Results[Cols]); // Gives us the First column in the returned array which is ID!
+							// Create the Login packet and send it
+							int Size = RawReader::CreatePacket(Packet, CommandType::LOGIN, SubCommandType::NONE, _ID, 0, 0);
+							_Socket->Send(Packet, Size);
+							// Now we need to move the player to the new map location
+							Players::RemovePlayer(OldID);
+							Players::InsertPlayer(_ID, this);
+							SetName(Username);
+							
+							// Send player all connected Users
+							std::map<u32, cPlayer*> PlayerArray = Players::GetArray();
+							std::map<u32, cPlayer*>::iterator it;
+							u8 SubData[64];
+							
+							for(it = PlayerArray.begin(); it != PlayerArray.end(); ++it)
+							{
+								memset(&SubData, 64, 0);
+								u8 *pSubData = &SubData[0];
+								if(it->first < MAXUSERS && it->first != _ID) // Make sure it isn't a client that isn't logged in and isn't ourselves
+								{
+									int SubDataSize = RawReader::WriteString(&pSubData, (const char*)it->second->GetName(), strlen((const char*)it->second->GetName()));
+									int Size = RawReader::CreatePacket(Packet, CommandType::PLAYERDATA, SubCommandType::PLAYERDATA_NAME, it->first, SubData, SubDataSize);
+									_Socket->Send(Packet, Size);
+									printf("Size: %d\n", Size);
+								}
+							}
+							// TODO: Send all users the newly connected player
+							
+						}
+						else // No user
+						{
+							printf("Couldn't find User %s\n", Username);
+							// Send the user a Login packet with a zero ID signifying we couldn't find that account
+							int Size = RawReader::CreatePacket(Packet, CommandType::LOGIN, SubCommandType::NONE, 0, 0, 0);
+							_Socket->Send(Packet, Size);
+							Database::FreeTable(Results);
+							delete Username;
+							delete Password;
+							goto end;
+						}
+						// TODO: Grab player shit from the database
+
+						Database::FreeTable(Results);
+						delete[] Username;
+						delete[] Password;
+					}
+					break;
+					case CommandType::CREATE_ACCOUNT:
+					{
+						// TODO: Add Player to the Database
+					}
+					break;
+					default:
+						printf("We Don't know command: %02X\n", RawReader::GetCommand(pbuf));
+					break;
 				}
-				break;
-				case CommandType::CREATE_ACCOUNT:
-				{
-					// TODO: Add Player to the Database
-				}
-				break;
-				default:
-					printf("We Don't know command: %02X\n", RawReader::GetCommand(buf));
-				break;
-			}
+			}while(RawReader::NextPacket(&pbuf, &CurrentLoc, result));
 		}
 	}
 	end:

@@ -45,6 +45,10 @@ namespace RawReader
 	 * data read lengths aren't mixing together
 	*/
 	u32 CreatePacket(u8 *Buffer, CommandType Command, SubCommandType SubCommand, u16 ID, u8 *Data, u32 DataSize);
+
+	// Gets the next packet
+	// Returns false when there is no next packet
+	bool NextPacket(u8** Buffer, s32 *CurrentLoc, s32 MaxSize);
 	
 	// Just gets the packets expected size
 	u16 GetFullSize(u8* Buffer);

@@ -17,34 +17,54 @@ u32 CurrentPlayerID;
 void cPlayer::Player_Thread()
 {
 	u8 buf[512];
+	u8 *pbuf = buf;
+	s32 CurrentLoc;
 	while(Running)
 	{
 		if(_Socket->HasData())
 		{
+			pbuf = buf;
+			CurrentLoc = 0;
+			
 			s32 result = _Socket->Recv( buf, sizeof(buf));
 			if(result == 0) // Player closed connection
 				goto end; // For now this will auto destroy the class
 			if(result < 0) // Recv error!
 				goto end; // Just return for now
 			printf("Sweet, We got something %d big\n", result);
-			switch(RawReader::GetCommand(buf))
+			do
 			{
-				case CommandType::LOGIN: // Return Login Packet packet
-					CurrentPlayerID = RawReader::GetID(buf);
-					if(CurrentPlayerID == 0) // zero means error
+				switch(RawReader::GetCommand(pbuf))
+				{
+					case CommandType::LOGIN: // Return Login Packet packet
+						CurrentPlayerID = RawReader::GetID(pbuf);
+						if(CurrentPlayerID == 0) // zero means error
+						{
+							printf("Server couldn't find this user. Exiting for now\n");
+							Running = false;
+							goto end;
+						}
+						Players::InsertPlayer(CurrentPlayerID, this); // Since we aren't inserted in to the array at all until we log in.
+					break;
+					case CommandType::PLAYERDATA:
 					{
-						printf("Server couldn't find this user. Exiting for now\n");
-						Running = false;
-						goto end;
+						u32 PlayerID = RawReader::GetID(pbuf); // Get the other player's ID
+						u8 *SubData = RawReader::GetData(pbuf);
+						u8* Username = new u8[64];
+						RawReader::ReadString(&SubData, Username);
+						printf("Player %s is online!\n", Username);
+						cPlayer *tmp = new cPlayer(PlayerID);
+						tmp->SetName(Username);
+						Players::InsertPlayer(PlayerID, tmp);
+						delete[] Username;
 					}
-					Players::InsertPlayer(CurrentPlayerID, this); // Since we aren't inserted in to the array at all until we log in.
-				break;
-				case CommandType::PLAYERDATA:
-				case CommandType::MOVEMENT:
-				default:
-					printf("We Don't know command: %02X\n", RawReader::GetCommand(buf));
-				break;
-			}
+					break;
+					case CommandType::MOVEMENT:
+					default:
+						printf("We Don't know command: %02X\n", RawReader::GetCommand(pbuf));
+					break;
+				}
+			} while(RawReader::NextPacket(&pbuf, &CurrentLoc, result));
 		}
 	}
 	end:
