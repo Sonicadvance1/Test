@@ -3,7 +3,7 @@
 
 #define DATABASE_FILENAME "Database.sqlite3"
 #define PLAYER_TABLE "Players"
-#define CREATE_PLAYER_TABLE "CREATE TABLE "PLAYER_TABLE" (ID INTEGER PRIMARY KEY, PlayerName TEXT, Password TEXT, Lang TEXT, Inv BLOB, \
+#define CREATE_PLAYER_TABLE "CREATE TABLE "PLAYER_TABLE" (ID INTEGER PRIMARY KEY, Playername TEXT, Password TEXT, Lang TEXT, Inv BLOB, \
 							Attack INTEGER, Mental INTEGER, Evade INTEGER, Health INTEGER, Defense INTEGER, \
 							Accuracy INTEGER, Luck INTEGER, Level INTEGER, Experience INTEGER, Money INTEGER);"
 /*

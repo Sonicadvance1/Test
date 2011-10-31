@@ -54,9 +54,6 @@ void cPlayer::Player_Thread()
 				{
 					case CommandType::LOGIN:
 					{
-						u16 FullPacketSize = RawReader::GetFullSize(pbuf);
-						if(FullPacketSize != result)
-							goto end;
 						u8 *Data = RawReader::GetData(pbuf);
 						u8 *Username = new u8[64];
 						u8 *Password = new u8[65];
@@ -126,6 +123,38 @@ void cPlayer::Player_Thread()
 					case CommandType::CREATE_ACCOUNT:
 					{
 						// TODO: Add Player to the Database
+						u8 *Data = RawReader::GetData(pbuf);
+						u8 *Username = new u8[64];
+						u8 *Password = new u8[65];
+						RawReader::ReadString(&Data, Username);
+						RawReader::ReadString(&Data, Password); // Should be a hash
+						
+						char Command[512];
+						char **Results;
+						int Rows, Cols;
+
+						sprintf(Command, "SELECT * FROM "PLAYER_TABLE" WHERE PlayerName='%s'", Username);
+						Database::Table(Command, &Results, &Rows, &Cols);
+						if(Rows > 1) // Player already exists
+						{
+							printf("User %s already exists!\n", Username);
+							// TODO: Send player a message saying it isn't available
+							Database::FreeTable(Results);
+							delete[] Username;
+							delete[] Password;
+							goto end;
+						}
+						else
+						{
+							printf("Creating Character %s\n", Username);
+							// TODO: Send player a message saying that their account has been created
+							sprintf(Command, "INSERT INTO "PLAYER_TABLE" (Playername, Password) VALUES('%s', '%s')", Username, Password);
+							// TODO: We need to do some password checking and scrubbing
+							Database::Exec(Command); // Just execute the insertion
+						}
+						Database::FreeTable(Results);
+						delete[] Username;
+						delete[] Password;
 					}
 					break;
 					default:

@@ -8,6 +8,7 @@ enum class CommandType : u16
 	CREATE_ACCOUNT,
 	PLAYERDATA,
 	MOVEMENT,
+	MESSAGE,
 
 	NONE = 0xFFFF // End of types
 };

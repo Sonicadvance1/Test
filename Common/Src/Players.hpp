@@ -34,6 +34,12 @@ class cPlayer
 			_Coord.Y += VelocityY * MOVE_AMOUNT;
 			_Coord.X += VelocityX * MOVE_AMOUNT;
 		}
+		// Sends a packet
+		s32 Send(u8 *buf, u32 size)
+		{
+			return _Socket->Send(buf, size);
+		}
+		// Sets and gets our player's name
 		void SetName(u8 *Name)
 		{
 			strcpy((char*)_Name, (const char*)Name);
@@ -48,7 +54,10 @@ namespace Players
 {
 	// This inserts a player in to the global namespace.
 	void InsertPlayer(const u32 ID, cPlayer *Player);
+	// removes player from global Namespace
 	void RemovePlayer(const u32 ID);
+	// Send a packet to all players
+	void SendAll(u8* Buffer, u32 Size);
 	std::map<u32, cPlayer*> GetArray();
 }
 

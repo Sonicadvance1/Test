@@ -7,6 +7,7 @@ namespace Players
 	std::map<u32, cPlayer*> _Players;
 
 	// Lock since we access this from multiple threads
+	// Anything dealing with _Players should be around mutex locks
 	std::mutex _Lock;
 	
 	void InsertPlayer(const u32 ID, cPlayer *Player)
@@ -21,7 +22,15 @@ namespace Players
 		// Removing player from the map is really easy
 		_Lock.lock();
 		if(_Players.erase(ID) != 1)
-			printf("Could erase player by ID: %d\n", ID);
+			printf("Couldn't erase player by ID: %d\n", ID);
+		_Lock.unlock();
+	}
+	void SendAll(u8* Buffer, u32 Size)
+	{
+		std::map<u32, cPlayer*>::iterator it;
+		_Lock.lock();
+		for (it = _Players.begin(); it != _Players.end(); ++it)
+			it->second->Send(Buffer, Size); // Send the packet away, we don't care about return types here
 		_Lock.unlock();
 	}
 	std::map<u32, cPlayer*> GetArray()

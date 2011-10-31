@@ -144,8 +144,17 @@ int main(int argc, char **argv)
 {
 	if(argc < 3)
 	{
-		printf("Usage: %s <name> <pass>\n", argv[0]);
+		printf("Usage: %s [-c] <name> <pass>\n", argv[0]);
 		return 0;
+	}
+	int Nameloc = 1;
+	int Passloc = 2;
+	bool Create = false;
+	if(argc == 4 && !strcmp(argv[1], "-c"))
+	{
+		Nameloc++;
+		Passloc++;
+		Create = true;
 	}
 	Socket = new cSocket();
 	Socket->Open(7110);
@@ -157,15 +166,23 @@ int main(int argc, char **argv)
 	u8 RawHashPass[32];
 	u8 HashPass[64];
 	u8 *pData = &Data[0];
-	u32 DataSize = RawReader::WriteString(&pData, argv[1]);
+	u32 DataSize = RawReader::WriteString(&pData, argv[Nameloc]);
 	// Encrypt our password
-	Crypto::Encrypt(CryptoType::SHA256, argv[2], strlen(argv[2]), RawHashPass);
+	Crypto::Encrypt(CryptoType::SHA256, argv[Passloc], strlen(argv[Passloc]), RawHashPass);
 	for(int a = 0; a < 32; ++a)
 		sprintf((char*)HashPass, "%s%02X", (a == 0 ? "" : (char*)HashPass), RawHashPass[a]);
 	DataSize += RawReader::WriteString(&pData, (char*)HashPass);
-	
+
 	u8 Packet[512];
 	u32 Size;
+
+	// Are we creating this character?
+	if(Create)
+	{
+		Size = RawReader::CreatePacket(&Packet[0], CommandType::CREATE_ACCOUNT, SubCommandType::NONE, 0, Data, DataSize);
+		Socket->Send(Packet, Size);
+	}
+	
 	Size = RawReader::CreatePacket(&Packet[0], CommandType::LOGIN, SubCommandType::NONE, 0, Data, DataSize);
 	Socket->Send(Packet, Size);
 	
