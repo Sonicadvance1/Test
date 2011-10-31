@@ -18,6 +18,7 @@
 #include "Database.hpp"
 #include "PacketTypes.hpp"
 #include "RawReader.hpp"
+#include "Map.hpp"
 
 #define SERVER_VERSION "0.0.02"
 bool Running = true;
@@ -98,11 +99,10 @@ void cPlayer::Player_Thread()
 								{
 									int SubDataSize = RawReader::WriteString(&pSubData, (const char*)it->second->GetName(), strlen((const char*)it->second->GetName()));
 									sCoord tCoord = it->second->Coord();
-									SubDataSize += RawReader::Write<u32>(&pSubData, (u32)tCoord.X);
-									SubDataSize += RawReader::Write<u32>(&pSubData, (u32)tCoord.Y);
+									SubDataSize += RawReader::Write<f32>(&pSubData, tCoord.X);
+									SubDataSize += RawReader::Write<f32>(&pSubData, tCoord.Y);
 									Size = RawReader::CreatePacket(Packet, CommandType::PLAYERDATA, SubCommandType::PLAYERDATA_NAME, it->first, SubData, SubDataSize);
 									_Socket->Send(Packet, Size);
-									printf("Size: %d\n", Size);
 								}
 							}
 							// Send Users the newly connected player
@@ -112,6 +112,18 @@ void cPlayer::Player_Thread()
 							int SubDataSize = RawReader::WriteString(&pSubData, (const char*)GetName(), strlen((const char*)GetName()));
 							Size = RawReader::CreatePacket(Packet, CommandType::LOGGED_IN, SubCommandType::PLAYERDATA_NAME, _ID, SubData, SubDataSize);
 							Players::SendAll(Packet, Size, _ID);
+
+							// Send the User the map
+							// TODO: Send in chunks
+							u8 *MapPacket;
+							u32 MapSize;
+							u8* MapArray = Maps::_Maps[0]->GetMap(&MapSize);
+							// We need to allocate this size because it could get massive.
+							MapPacket = new u8[MapSize + 9];
+							Size = RawReader::CreatePacket(MapPacket, CommandType::MAP, SubCommandType::NONE, 0/* MAP ID? */, MapArray, MapSize);
+							printf("Mapsize: %d Packet Size: %d\n", MapSize, Size);
+							_Socket->Send(MapPacket, Size);
+							delete[] MapPacket;
 							
 							
 						}
@@ -174,13 +186,22 @@ void cPlayer::Player_Thread()
 					{
 						// Send to all except the ID that sent it
 						// TODO: Validate movement
-						u32 X, Y;
+						double Angle;
 						u8 *SubData = RawReader::GetData(pbuf);
-						X = RawReader::Read<u32>(&SubData);
-						Y = RawReader::Read<u32>(&SubData);
-						_Coord.X = X;
-						_Coord.Y = Y;
+						Angle = RawReader::Read<double>(&SubData);
+						Move(Angle);
 						Players::SendAll(pbuf, RawReader::GetFullSize(pbuf), _ID);
+					}
+					break;
+					case CommandType::INSERT_TILE:
+					{
+						// TODO: We will need to change where this is getting changed later on.
+						u8 *SubData = RawReader::GetData(pbuf);
+						// Insert it in to our map
+						// Currently Map[0] just because that is the ONLY map we have.
+						Maps::_Maps[0]->InsertObject(SubData);
+						// Send the change to everyone
+						Players::SendAll(pbuf, RawReader::GetFullSize(pbuf));
 					}
 					break;
 					default:
@@ -219,6 +240,7 @@ int main(int argc, char** argv)
 	// Initialize our Database
 	if(!Database::Init())
 		return 1;
+	Maps::Load(0); // TODO: Check how many maps we have and load them all at once, for now loading default 0 will work.
 		
 	// Open the socket
 	if(!Listener.Open(serverPort))
@@ -256,6 +278,8 @@ int main(int argc, char** argv)
 	}
 	// Shutdown our Database
 	Database::Shutdown();
+	// Shutdown the maps
+	Maps::Shutdown();
 	return 0;
 } // end of int main
                     

@@ -11,6 +11,8 @@ enum class CommandType : u16
 	MESSAGE,
 	LOGGED_IN,
 	LOGGED_OUT,
+	MAP,
+	INSERT_TILE,
 
 	NONE = 0xFFFF // End of types
 };

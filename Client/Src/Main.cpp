@@ -16,6 +16,18 @@ cPlayer *Player;
 cSocket *Socket;
 cMap Test;
 u32 CurrentPlayerID;
+
+// This drawing code REALLY REALLY shouldn't be here!
+GLuint Tex;
+void cMap::Draw()
+{
+	std::map<std::pair<std::pair<f32, f32>, f32>, cTile>::iterator it;
+	for(it = _Tiles.begin(); it != _Tiles.end(); ++it)
+	{
+		Graphics::DrawCube({it->second._X, it->second._Y, it->second._Z, 1, 1, 1}, Tex);
+	}
+}
+
 void cPlayer::Player_Thread()
 {
 	u8 buf[512];
@@ -58,11 +70,11 @@ void cPlayer::Player_Thread()
 							case SubCommandType::PLAYERDATA_NAME:
 							{
 								u8* Username = new u8[64];
-								u32 X, Y;
+								f32 X, Y;
 								RawReader::ReadString(&SubData, Username);
-								X = RawReader::Read<u32>(&SubData);
-								Y = RawReader::Read<u32>(&SubData);
-								printf("Player %s is online!\n", Username);
+								X = RawReader::Read<f32>(&SubData);
+								Y = RawReader::Read<f32>(&SubData);
+								printf("Player %s is online!\n", Username, X, Y);
 								cPlayer *tmp = new cPlayer(PlayerID);
 								tmp->SetName(Username);
 								tmp->SetCoord(X, Y);
@@ -123,6 +135,19 @@ void cPlayer::Player_Thread()
 						PlayerArray[PlayerID]->Move(Angle);
 					}
 					break;
+					case CommandType::MAP:
+					{
+						u8 *SubData = RawReader::GetData(pbuf);
+						u32 SubDataSize = RawReader::GetDataSize(pbuf);
+						Test.Load(SubData, SubDataSize);
+					}
+					break;
+					case CommandType::INSERT_TILE: // TODO: Should we allow these to be mashed together?
+					{
+						u8 *SubData = RawReader::GetData(pbuf);
+						Test.InsertObject(SubData);
+					}
+					break;
 					default:
 						printf("We Don't know command: %02X\n", RawReader::GetCommand(pbuf));
 					break;
@@ -176,13 +201,14 @@ void HandleInput()
 				u8 SubData[64];
 				u8 *pSubData = &SubData[0];
 				int SubDataSize = RawReader::Write<double>(&pSubData, Angle);
+				Player->Move(Angle);
 				int Size = RawReader::CreatePacket(Packet, CommandType::MOVEMENT, SubCommandType::NONE, CurrentPlayerID, SubData, SubDataSize);
 				Player->Send(Packet, Size);
-				Player->Move(Angle);
 			}
 			break;
 			case Key_Type::MOUSE_3: // Right click, add tile
 			{
+				_Status.erase(_Status.begin(), _Status.begin() + 2);
 				f32 tX = (f32)(s32)Player->Coord().X;
 				f32 tY = (f32)(s32)Player->Coord().Y;
 				f32 tZ = 0.0f; // Remember, zero is ground level
@@ -192,8 +218,12 @@ void HandleInput()
 				RawReader::Write<f32>(&pBuf, tX);
 				RawReader::Write<f32>(&pBuf, tY);
 				RawReader::Write<f32>(&pBuf, tZ);
-				Test.InsertObject(Buffer);
+				// Now let's send this to the server!
+				u8 Packet[128];
+				int Size = RawReader::CreatePacket(Packet, CommandType::INSERT_TILE, SubCommandType::NONE, CurrentPlayerID, Buffer, 13);
+				Player->Send(Packet, Size);
 			}
+			break;
 			default:
 				printf("Unknown Key Function: %d\n", _Status[0]);
 			break;
@@ -201,26 +231,6 @@ void HandleInput()
 		}
 		_Status.erase(_Status.begin());
 	}
-	// TODO: This needs to be moved to when things are received
-	
-   /* if(Direction != -1)
-    {
-		u8 *pPacket = new u8[512];
-		u8 *Start = pPacket;
-		u16 size = 3;
-		size += RawReader::Write<u16>(&pPacket, 0x0001); // Command
-		u8 *pLength = pPacket; // Save this location for later
-		size += RawReader::Write<u8>(&pPacket, 0x00); // Sub Function
-		size += RawReader::Write<u16>(&pPacket, 0x0000); // Player ID
-		size += RawReader::Write<u8>(&pPacket, Direction); // Send player moving direction
-		RawReader::Write<u16>(&pPacket, size / 2); //Size divided by two in the end?
-		RawReader::Write<u16>(&pLength, size); // Put our length in earlier in the stream
-		for(int a = 0; a < size - 1; ++a)
-			printf("%02X", Start[a]);
-		printf("\n");
-		delete[] Start;
-	}*/
-   
    
 }
 int main(int argc, char **argv)
@@ -271,7 +281,9 @@ int main(int argc, char **argv)
 	
 	Windows::Init();
 	Graphics::Init();
-	Test.Load(5);
+	// Loading texture shouldn't really be here
+	Tex = Graphics::LoadTexture("Resources/Watermelon.png");
+	
 	std::map<u32, cPlayer*> PlayerArray;
 	std::map<u32, cPlayer*>::iterator it;
 	while(Running)

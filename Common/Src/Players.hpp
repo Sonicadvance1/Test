@@ -38,7 +38,7 @@ class cPlayer
 			_Coord.Y -= MOVE_AMOUNT * cos(Angle);
 			_Coord.X += MOVE_AMOUNT * sin(Angle);
 		}
-		void SetCoord(u32 X, u32 Y)
+		void SetCoord(f32 X, f32 Y)
 		{
 			_Coord.Y = Y;
 			_Coord.X = X;
