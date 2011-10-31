@@ -2,6 +2,7 @@
 #define COMMON_HPP_
 // Some defines
 #define MAXUSERS 65535
+#define PI 3.14159265
 
 //unsigned types
 typedef unsigned char u8;

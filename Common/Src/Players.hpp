@@ -5,6 +5,7 @@
 #include <thread>
 #include <map>
 #include <string.h>
+#include <math.h>
 
 #define MOVE_AMOUNT 0.2
 
@@ -29,10 +30,18 @@ class cPlayer
 		cPlayer(cSocket *Socket);
 		~cPlayer();
 		sCoord Coord();
-		void Move(u32 VelocityX, u32 VelocityY)
+		// Move with a radian angle
+		// Negative is up, positive is down
+		
+		void Move(double Angle)
 		{
-			_Coord.Y = VelocityY;
-			_Coord.X = VelocityX;
+			_Coord.Y -= MOVE_AMOUNT * cos(Angle);
+			_Coord.X += MOVE_AMOUNT * sin(Angle);
+		}
+		void SetCoord(u32 X, u32 Y)
+		{
+			_Coord.Y = Y;
+			_Coord.X = X;
 		}
 		// Sends a packet
 		s32 Send(u8 *buf, u32 size)

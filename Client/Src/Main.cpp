@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <math.h>
 
 #include "Socket.hpp"
 #include "Players.hpp"
@@ -63,7 +64,7 @@ void cPlayer::Player_Thread()
 								printf("Player %s is online!\n", Username);
 								cPlayer *tmp = new cPlayer(PlayerID);
 								tmp->SetName(Username);
-								tmp->Move(X, Y);
+								tmp->SetCoord(X, Y);
 								Players::InsertPlayer(PlayerID, tmp);
 								delete[] Username;
 							}
@@ -113,13 +114,12 @@ void cPlayer::Player_Thread()
 					case CommandType::MOVEMENT:
 					{
 						u32 PlayerID = RawReader::GetID(pbuf);
-						u32 X, Y;
+						double Angle;
 						u8 *SubData = RawReader::GetData(pbuf);
-						X = RawReader::Read<u32>(&SubData);
-						Y = RawReader::Read<u32>(&SubData);
+						Angle = RawReader::Read<double>(&SubData);
 						std::map<u32, cPlayer*> PlayerArray = Players::GetArray();
-						printf("Player %s moved to %d %d\n", PlayerArray[PlayerID]->GetName(), X, Y);
-						PlayerArray[PlayerID]->Move(X, Y);
+						printf("Player %s moved with angle %lf\n", PlayerArray[PlayerID]->GetName(), Angle);
+						PlayerArray[PlayerID]->Move(Angle);
 					}
 					break;
 					default:
@@ -140,7 +140,6 @@ void HandleInput()
 	Windows::KeyLock.lock();
 	_Status = Windows::GetKeyStatus();
 	Windows::KeyLock.unlock();
-	s8 Vx, Vy;
 	
 	// Loop through until empty
 	while(!_Status.empty())
@@ -165,22 +164,21 @@ void HandleInput()
 			{
 				// After initial one on mouse, we have two more in the array for X and Y coordinates of mouse press.
 				// TODO: Convert to world coordinates!
-				u32 X, Y;
-				X = _Status[1];
-				Y = _Status[2];
-				// TODO: These next 2 line are temporary
-				Vx = X;
-				Vy = Y;
-				printf("Clicked %d at %d %d\n", _Status[0], X, Y);
+				s32 X, Y;
+				double Angle;
+				X = (s32)_Status[1];
+				Y = (s32)_Status[2];
+				Angle = atan2(Y - DEFAULT_HEIGHT / 2 , X - DEFAULT_WIDTH / 2);
+				printf("Clicked %d at %d %d %lf g\n", _Status[0], X, Y, Angle);
 				_Status.erase(_Status.begin(), _Status.begin() + 2);
 
 				u8 Packet[256];
 				u8 SubData[64];
 				u8 *pSubData = &SubData[0];
-				int SubDataSize = RawReader::Write<u32>(&pSubData, X);
-				SubDataSize += RawReader::Write<u32>(&pSubData, Y);
+				int SubDataSize = RawReader::Write<double>(&pSubData, Angle);
 				int Size = RawReader::CreatePacket(Packet, CommandType::MOVEMENT, SubCommandType::NONE, CurrentPlayerID, SubData, SubDataSize);
 				Player->Send(Packet, Size);
+				Player->Move(Angle);
 			}
 			break;
 			default:
@@ -188,7 +186,6 @@ void HandleInput()
 			break;
 			
 		}
-		Player->Move(Vx, Vy);
 		_Status.erase(_Status.begin());
 	}
 	// TODO: This needs to be moved to when things are received
@@ -274,6 +271,7 @@ int main(int argc, char **argv)
 		PlayerArray = Players::GetArray();
 		for(it = PlayerArray.begin(); it != PlayerArray.end(); ++it)
 			Graphics::DrawPlayer(it->second);
+		Graphics::DrawRect({DEFAULT_WIDTH / 2, DEFAULT_HEIGHT / 2, 1, 1}, 0);
 		Graphics::Swap();
 	}
 	Windows::Shutdown();
