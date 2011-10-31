@@ -39,6 +39,7 @@ void cPlayer::Player_Thread()
 	{
 		if(_Socket->HasData())
 		{
+			memset(buf, 512, 0);
 			pbuf = buf;
 			CurrentLoc = 0;
 			
@@ -162,6 +163,13 @@ void cPlayer::Player_Thread()
 						Database::FreeTable(Results);
 						delete[] Username;
 						delete[] Password;
+					}
+					break;
+					case CommandType::MOVEMENT: // A Player moved
+					{
+						// Send to all except the ID that sent it
+						// TODO: Record the movement and check for hacking
+						Players::SendAll(pbuf, RawReader::GetFullSize(pbuf), _ID);
 					}
 					break;
 					default:

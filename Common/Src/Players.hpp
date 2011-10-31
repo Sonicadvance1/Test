@@ -31,8 +31,8 @@ class cPlayer
 		sCoord Coord();
 		void Move(int VelocityX, int VelocityY)
 		{
-			_Coord.Y += VelocityY * MOVE_AMOUNT;
-			_Coord.X += VelocityX * MOVE_AMOUNT;
+			_Coord.Y = VelocityY;
+			_Coord.X = VelocityX;
 		}
 		// Sends a packet
 		s32 Send(u8 *buf, u32 size)

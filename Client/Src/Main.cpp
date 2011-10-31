@@ -107,6 +107,17 @@ void cPlayer::Player_Thread()
 					}
 					break;
 					case CommandType::MOVEMENT:
+					{
+						u32 PlayerID = RawReader::GetID(pbuf);
+						u32 X, Y;
+						u8 *SubData = RawReader::GetData(pbuf);
+						X = RawReader::Read<u32>(&SubData);
+						Y = RawReader::Read<u32>(&SubData);
+						std::map<u32, cPlayer*> PlayerArray = Players::GetArray();
+						printf("Player %s moved to %d %d\n", PlayerArray[PlayerID]->GetName(), X, Y);
+						PlayerArray[PlayerID]->Move(X, Y);
+					}
+					break;
 					default:
 						printf("We Don't know command: %02X\n", RawReader::GetCommand(pbuf));
 					break;
@@ -132,7 +143,7 @@ void HandleInput()
 	{
 		switch(_Status[0])
 		{
-			case Key_Type::KEY_W:
+			/*case Key_Type::KEY_W:
 				Vy++;
 			break;
 			case Key_Type::KEY_A:
@@ -143,18 +154,29 @@ void HandleInput()
 			break;
 			case Key_Type::KEY_D:
 				Vx++;
-			break;
+			break;*/
 			case Key_Type::MOUSE_1:
 			case Key_Type::MOUSE_2:
 			case Key_Type::MOUSE_3:
 			{
 				// After initial one on mouse, we have two more in the array for X and Y coordinates of mouse press.
+				// TODO: Convert to world coordinates!
 				u32 X, Y;
 				X = _Status[1];
 				Y = _Status[2];
+				// TODO: These next 2 line are temporary
+				Vx = X;
+				Vy = Y;
 				printf("Clicked %d at %d %d\n", _Status[0], X, Y);
 				_Status.erase(_Status.begin(), _Status.begin() + 2);
-				
+
+				u8 Packet[256];
+				u8 SubData[64];
+				u8 *pSubData = &SubData[0];
+				int SubDataSize = RawReader::Write<u32>(&pSubData, X);
+				SubDataSize += RawReader::Write<u32>(&pSubData, Y);
+				int Size = RawReader::CreatePacket(Packet, CommandType::MOVEMENT, SubCommandType::NONE, CurrentPlayerID, SubData, SubDataSize);
+				Player->Send(Packet, Size);
 			}
 			break;
 			default:
