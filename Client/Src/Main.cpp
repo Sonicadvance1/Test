@@ -271,7 +271,16 @@ int main(int argc, char **argv)
 		PlayerArray = Players::GetArray();
 		for(it = PlayerArray.begin(); it != PlayerArray.end(); ++it)
 			Graphics::DrawPlayer(it->second);
-		Graphics::DrawRect({DEFAULT_WIDTH / 2, DEFAULT_HEIGHT / 2, 1, 1}, 0);
+		// Draw a rect around the square we are currently at.
+		f32 tX = (f32)(s32)Player->Coord().X;
+		f32 tY = (f32)(s32)Player->Coord().Y;
+		sCoord Lines[5] = { {tX, tY, -32.0f},
+							{tX + 1.0f, tY, -32.0f},
+							{tX + 1.0f, tY + 1.0f, -32.0f},
+							{tX, tY + 1.0f, -32.0f},
+							{tX, tY, -32.0f} };
+		Graphics::DrawLines(Lines, 5); 
+		Graphics::DrawRect({0, 0, .1, .1}, 0);
 		Graphics::Swap();
 	}
 	Windows::Shutdown();

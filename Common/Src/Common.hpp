@@ -27,6 +27,12 @@ struct sCoord
 	{
 		X = Y = Z = 0;
 	}
+	sCoord(f32 _X, f32 _Y, f32 _Z)
+	{
+		X = _X;
+		Y = _Y;
+		Z = _Z;
+	}
 	f32 X, Y, Z;
 };
 

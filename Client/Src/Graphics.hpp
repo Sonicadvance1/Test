@@ -35,6 +35,7 @@ namespace Graphics
 	GLuint LoadTexture(std::string filename);
 	void DrawRect(sfRect Quad, GLuint Tex);
 	void DrawCube(sfCube Cube, GLuint Tex);
+	void DrawLines(sCoord *Lines, int Count);
 	void DrawPlayer(cPlayer *Player);
 	void Clear();
 	void Swap();

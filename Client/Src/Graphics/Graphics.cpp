@@ -335,6 +335,22 @@ namespace Graphics
 		glDisableClientState(GL_COLOR_ARRAY);
 		glDisableClientState(GL_VERTEX_ARRAY);
 	}
+	void DrawLines(sCoord *Lines, int Count)
+	{
+		// we need to NOT use immediate mode, is super slow compared to other ways
+		glPushMatrix();
+		glBindTexture(GL_TEXTURE_2D, 0);
+		glBegin(GL_LINE_STRIP);
+		static float colour = 0.0f;
+		colour += 0.01f;
+		if(colour > 1.0f)
+			colour = 0.0f;
+			glColor4f(colour, 1.0, 1.0, 1.0);
+			for(int a = 0; a < Count; ++a)
+				glVertex3f(Lines[a].X, Lines[a].Y, Lines[a].Z);
+		glEnd();
+		glPopMatrix();
+	}
 	// TODO: Make this complete
 	void DrawPlayer(cPlayer *Player)
 	{
