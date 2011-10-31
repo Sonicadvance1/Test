@@ -29,7 +29,7 @@ class cPlayer
 		cPlayer(cSocket *Socket);
 		~cPlayer();
 		sCoord Coord();
-		void Move(int VelocityX, int VelocityY)
+		void Move(u32 VelocityX, u32 VelocityY)
 		{
 			_Coord.Y = VelocityY;
 			_Coord.X = VelocityX;

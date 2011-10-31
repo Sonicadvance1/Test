@@ -56,10 +56,14 @@ void cPlayer::Player_Thread()
 							case SubCommandType::PLAYERDATA_NAME:
 							{
 								u8* Username = new u8[64];
+								u32 X, Y;
 								RawReader::ReadString(&SubData, Username);
+								X = RawReader::Read<u32>(&SubData);
+								Y = RawReader::Read<u32>(&SubData);
 								printf("Player %s is online!\n", Username);
 								cPlayer *tmp = new cPlayer(PlayerID);
 								tmp->SetName(Username);
+								tmp->Move(X, Y);
 								Players::InsertPlayer(PlayerID, tmp);
 								delete[] Username;
 							}

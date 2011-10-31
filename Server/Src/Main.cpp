@@ -89,6 +89,7 @@ void cPlayer::Player_Thread()
 							u8 SubData[64];
 							u8 *pSubData;
 							memset(Packet, 256, 0);
+							// Send User all connected players
 							for(it = PlayerArray.begin(); it != PlayerArray.end(); ++it)
 							{
 								memset(&SubData, 64, 0);
@@ -96,11 +97,15 @@ void cPlayer::Player_Thread()
 								if(it->first < MAXUSERS && it->first != _ID) // Make sure it isn't a client that isn't logged in and isn't ourselves
 								{
 									int SubDataSize = RawReader::WriteString(&pSubData, (const char*)it->second->GetName(), strlen((const char*)it->second->GetName()));
+									sCoord tCoord = it->second->Coord();
+									SubDataSize += RawReader::Write<u32>(&pSubData, (u32)tCoord.X);
+									SubDataSize += RawReader::Write<u32>(&pSubData, (u32)tCoord.Y);
 									Size = RawReader::CreatePacket(Packet, CommandType::PLAYERDATA, SubCommandType::PLAYERDATA_NAME, it->first, SubData, SubDataSize);
 									_Socket->Send(Packet, Size);
 									printf("Size: %d\n", Size);
 								}
 							}
+							// Send Users the newly connected player
 							memset(Packet, 256, 0);
 							memset(&SubData, 64, 0);
 							pSubData = &SubData[0];
@@ -168,7 +173,13 @@ void cPlayer::Player_Thread()
 					case CommandType::MOVEMENT: // A Player moved
 					{
 						// Send to all except the ID that sent it
-						// TODO: Record the movement and check for hacking
+						// TODO: Validate movement
+						u32 X, Y;
+						u8 *SubData = RawReader::GetData(pbuf);
+						X = RawReader::Read<u32>(&SubData);
+						Y = RawReader::Read<u32>(&SubData);
+						_Coord.X = X;
+						_Coord.Y = Y;
 						Players::SendAll(pbuf, RawReader::GetFullSize(pbuf), _ID);
 					}
 					break;
