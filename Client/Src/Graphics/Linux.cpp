@@ -132,6 +132,7 @@ namespace Windows
 	}
 	bool Init()
 	{
+		XInitThreads(); 
 		int glxMajorVersion, glxMinorVersion;
 		iBackBufferWidth = DEFAULT_WIDTH;
 		iBackBufferHeight = DEFAULT_HEIGHT;

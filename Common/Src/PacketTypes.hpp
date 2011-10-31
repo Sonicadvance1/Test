@@ -9,6 +9,7 @@ enum class CommandType : u16
 	PLAYERDATA,
 	MOVEMENT,
 	MESSAGE,
+	LOGGED_IN,
 
 	NONE = 0xFFFF // End of types
 };

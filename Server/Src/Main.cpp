@@ -86,7 +86,7 @@ void cPlayer::Player_Thread()
 							std::map<u32, cPlayer*> PlayerArray = Players::GetArray();
 							std::map<u32, cPlayer*>::iterator it;
 							u8 SubData[64];
-							
+							memset(Packet, 256, 0);
 							for(it = PlayerArray.begin(); it != PlayerArray.end(); ++it)
 							{
 								memset(&SubData, 64, 0);

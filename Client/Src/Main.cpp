@@ -190,13 +190,17 @@ int main(int argc, char **argv)
 	Windows::Init();
 	Graphics::Init();
 	Test.Load(5);
+	std::map<u32, cPlayer*> PlayerArray;
+	std::map<u32, cPlayer*>::iterator it;
 	while(Running)
 	{
 		usleep(200);
 		HandleInput();
 		Graphics::Clear();
 		Test.Draw();
-		Graphics::DrawPlayer(Player);
+		PlayerArray = Players::GetArray();
+		for(it = PlayerArray.begin(); it != PlayerArray.end(); ++it)
+			Graphics::DrawPlayer(it->second);
 		Graphics::Swap();
 	}
 	Windows::Shutdown();
