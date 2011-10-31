@@ -122,6 +122,11 @@ class cMap
 				LoadObject(&pMap);
 			
 		}
+		// This will insert an object in to the map
+		void InsertObject(u8 *Buffer)
+		{
+			LoadObject(&Buffer);
+		}
 		void Draw()
 		{
 			std::map<std::pair<std::pair<f32, f32>, f32>, cTile>::iterator it;

@@ -14,6 +14,7 @@
 bool Running = true;
 cPlayer *Player;
 cSocket *Socket;
+cMap Test;
 u32 CurrentPlayerID;
 void cPlayer::Player_Thread()
 {
@@ -158,9 +159,8 @@ void HandleInput()
 			case Key_Type::KEY_D:
 				Vx++;
 			break;*/
-			case Key_Type::MOUSE_1:
-			case Key_Type::MOUSE_2:
-			case Key_Type::MOUSE_3:
+			case Key_Type::MOUSE_1: // Left click move player
+			case Key_Type::MOUSE_2: // Middle click undecided, just move player for now.
 			{
 				// After initial one on mouse, we have two more in the array for X and Y coordinates of mouse press.
 				// TODO: Convert to world coordinates!
@@ -181,6 +181,19 @@ void HandleInput()
 				Player->Move(Angle);
 			}
 			break;
+			case Key_Type::MOUSE_3: // Right click, add tile
+			{
+				f32 tX = (f32)(s32)Player->Coord().X;
+				f32 tY = (f32)(s32)Player->Coord().Y;
+				f32 tZ = 0.0f; // Remember, zero is ground level
+				u8 Buffer[32];
+				u8 *pBuf = &Buffer[0];
+				RawReader::Write<u8>(&pBuf, MAP_TILE); 
+				RawReader::Write<f32>(&pBuf, tX);
+				RawReader::Write<f32>(&pBuf, tY);
+				RawReader::Write<f32>(&pBuf, tZ);
+				Test.InsertObject(Buffer);
+			}
 			default:
 				printf("Unknown Key Function: %d\n", _Status[0]);
 			break;
@@ -256,7 +269,6 @@ int main(int argc, char **argv)
 	Size = RawReader::CreatePacket(&Packet[0], CommandType::LOGIN, SubCommandType::NONE, 0, Data, DataSize);
 	Socket->Send(Packet, Size);
 	
-	cMap Test;
 	Windows::Init();
 	Graphics::Init();
 	Test.Load(5);
