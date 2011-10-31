@@ -49,14 +49,61 @@ void cPlayer::Player_Thread()
 					case CommandType::PLAYERDATA:
 					{
 						u32 PlayerID = RawReader::GetID(pbuf); // Get the other player's ID
+						SubCommandType SubCommand = RawReader::GetSubCommand(pbuf);
 						u8 *SubData = RawReader::GetData(pbuf);
-						u8* Username = new u8[64];
-						RawReader::ReadString(&SubData, Username);
-						printf("Player %s is online!\n", Username);
-						cPlayer *tmp = new cPlayer(PlayerID);
-						tmp->SetName(Username);
-						Players::InsertPlayer(PlayerID, tmp);
-						delete[] Username;
+						switch(SubCommand)
+						{
+							case SubCommandType::PLAYERDATA_NAME:
+							{
+								u8* Username = new u8[64];
+								RawReader::ReadString(&SubData, Username);
+								printf("Player %s is online!\n", Username);
+								cPlayer *tmp = new cPlayer(PlayerID);
+								tmp->SetName(Username);
+								Players::InsertPlayer(PlayerID, tmp);
+								delete[] Username;
+							}
+							break;
+							default:
+								printf("We don't understand subcommand %d for command %d\n", SubCommand, RawReader::GetCommand(pbuf));
+							break;
+						}
+						
+					}
+					break;
+					case CommandType::LOGGED_IN: // For when someone logs in
+					{
+						u32 PlayerID = RawReader::GetID(pbuf); // Get the player's ID that logged in
+						SubCommandType SubCommand = RawReader::GetSubCommand(pbuf);
+						u8 *SubData = RawReader::GetData(pbuf);
+						if(PlayerID == _ID)
+							break; // Just ourselves logging in
+						// TODO: We should just put all the information in one packet
+						switch(SubCommand)
+						{
+							case SubCommandType::PLAYERDATA_NAME:
+							{
+								u8* Username = new u8[64];
+								RawReader::ReadString(&SubData, Username);
+								printf("Player %s Logged in!\n", Username);
+								cPlayer *tmp = new cPlayer(PlayerID);
+								tmp->SetName(Username);
+								Players::InsertPlayer(PlayerID, tmp);
+								delete[] Username;
+							}
+							break;
+							default:
+								printf("We don't understand subcommand %d for command %d\n", SubCommand, RawReader::GetCommand(pbuf));
+							break;
+						}
+					}
+					break;
+					case CommandType::LOGGED_OUT: // Someone logged out!
+					{
+						u32 PlayerID = RawReader::GetID(pbuf);
+						std::map<u32, cPlayer*> PlayerArray = Players::GetArray();
+						printf("%s Logged out!\n", PlayerArray[PlayerID]->GetName());
+						Players::RemovePlayer(PlayerID);
 					}
 					break;
 					case CommandType::MOVEMENT:

@@ -86,20 +86,27 @@ void cPlayer::Player_Thread()
 							std::map<u32, cPlayer*> PlayerArray = Players::GetArray();
 							std::map<u32, cPlayer*>::iterator it;
 							u8 SubData[64];
+							u8 *pSubData;
 							memset(Packet, 256, 0);
 							for(it = PlayerArray.begin(); it != PlayerArray.end(); ++it)
 							{
 								memset(&SubData, 64, 0);
-								u8 *pSubData = &SubData[0];
+								pSubData = &SubData[0];
 								if(it->first < MAXUSERS && it->first != _ID) // Make sure it isn't a client that isn't logged in and isn't ourselves
 								{
 									int SubDataSize = RawReader::WriteString(&pSubData, (const char*)it->second->GetName(), strlen((const char*)it->second->GetName()));
-									int Size = RawReader::CreatePacket(Packet, CommandType::PLAYERDATA, SubCommandType::PLAYERDATA_NAME, it->first, SubData, SubDataSize);
+									Size = RawReader::CreatePacket(Packet, CommandType::PLAYERDATA, SubCommandType::PLAYERDATA_NAME, it->first, SubData, SubDataSize);
 									_Socket->Send(Packet, Size);
 									printf("Size: %d\n", Size);
 								}
 							}
-							// TODO: Send all users the newly connected player
+							memset(Packet, 256, 0);
+							memset(&SubData, 64, 0);
+							pSubData = &SubData[0];
+							int SubDataSize = RawReader::WriteString(&pSubData, (const char*)GetName(), strlen((const char*)GetName()));
+							Size = RawReader::CreatePacket(Packet, CommandType::LOGGED_IN, SubCommandType::PLAYERDATA_NAME, _ID, SubData, SubDataSize);
+							Players::SendAll(Packet, Size, _ID);
+							
 							
 						}
 						else // No user
@@ -166,6 +173,10 @@ void cPlayer::Player_Thread()
 	}
 	end:
 	printf("Player %s left!\n", GetName());
+	// Send everyone that that person left
+	u8 Packet[256];
+	int Size = RawReader::CreatePacket(Packet, CommandType::LOGGED_OUT, SubCommandType::NONE, _ID, 0, 0);
+	Players::SendAll(Packet, Size, _ID);
 	// Remove the player from the array
 	Players::RemovePlayer(_ID);
 	// Now clean up this object

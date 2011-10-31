@@ -10,6 +10,7 @@ enum class CommandType : u16
 	MOVEMENT,
 	MESSAGE,
 	LOGGED_IN,
+	LOGGED_OUT,
 
 	NONE = 0xFFFF // End of types
 };

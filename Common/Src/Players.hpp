@@ -57,7 +57,7 @@ namespace Players
 	// removes player from global Namespace
 	void RemovePlayer(const u32 ID);
 	// Send a packet to all players
-	void SendAll(u8* Buffer, u32 Size);
+	void SendAll(u8* Buffer, u32 Size, u32 Skip = 0);
 	std::map<u32, cPlayer*> GetArray();
 }
 

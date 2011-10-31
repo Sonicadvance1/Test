@@ -25,11 +25,12 @@ namespace Players
 			printf("Couldn't erase player by ID: %d\n", ID);
 		_Lock.unlock();
 	}
-	void SendAll(u8* Buffer, u32 Size)
+	void SendAll(u8* Buffer, u32 Size, u32 Skip)
 	{
 		std::map<u32, cPlayer*>::iterator it;
 		_Lock.lock();
 		for (it = _Players.begin(); it != _Players.end(); ++it)
+		if(Skip != it->first)
 			it->second->Send(Buffer, Size); // Send the packet away, we don't care about return types here
 		_Lock.unlock();
 	}
