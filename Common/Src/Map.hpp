@@ -5,6 +5,7 @@
 #include <utility>
 // std::triple
 #define make_triple(X, Y, Z) std::make_pair(std::make_pair(X, Y), Z)
+typedef std::pair<std::pair<f32, f32>, f32> TileTriple;
 #define MAP_DIR "Maps/"
 
 #include "Common.hpp"
@@ -28,7 +29,7 @@ class cTile
 		_Y = RawReader::Read<f32>(Buffer);
 		_Z = RawReader::Read<f32>(Buffer);
 	}
-	std::pair<std::pair<f32, f32>, f32> Triple()
+	TileTriple Triple()
 	{
 		return make_triple(_X, _Y, _Z);
 	}
@@ -38,10 +39,13 @@ class cTile
 		Size += RawReader::Write<f32>(Out, _X);
 		Size += RawReader::Write<f32>(Out, _Y);
 		Size += RawReader::Write<f32>(Out, _Z);
+		printf("%f,%f, %f\n", _X, _Y, _Z);
 		return Size;
 	}
 	
 };
+typedef std::map<TileTriple, cTile> TileMap;
+
 class cMap
 {
 	private:
@@ -55,7 +59,7 @@ class cMap
 		 * I mean, everything should just be decimal based right?
 		 * Need to look in to how I want to do this more later
 		*/
-		std::map<std::pair<std::pair<f32, f32>, f32>, cTile> _Tiles;
+		TileMap _Tiles;
 
 		// This is direct to the correct loader
 		// Be it entities, tiles or other things in the map
@@ -89,9 +93,11 @@ class cMap
 
 			_MapSize += RawReader::Write<u64>(&pMap, _Width);
 			_MapSize += RawReader::Write<u64>(&pMap, _Height);
-			std::map<std::pair<std::pair<f32, f32>, f32>, cTile>::iterator it;
+			TileMap::iterator it;
+			int num = 0;
 			for(it = _Tiles.begin(); it != _Tiles.end(); ++it)
 			{
+				printf("it: %d:", num++);
 				_MapSize += it->second.Read(&pMap);
 			}
 			printf("New Map size: %d\n", _MapSize); 

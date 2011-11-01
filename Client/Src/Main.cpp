@@ -21,7 +21,7 @@ u32 CurrentPlayerID;
 GLuint Tex;
 void cMap::Draw()
 {
-	std::map<std::pair<std::pair<f32, f32>, f32>, cTile>::iterator it;
+	TileMap::iterator it;
 	for(it = _Tiles.begin(); it != _Tiles.end(); ++it)
 	{
 		Graphics::DrawCube({it->second._X, it->second._Y, it->second._Z, 1, 1, 1}, Tex);
@@ -166,24 +166,26 @@ void HandleInput()
 	Windows::KeyLock.lock();
 	_Status = Windows::GetKeyStatus();
 	Windows::KeyLock.unlock();
-	
+	static f32 tZ = 0.0f; // Remember, zero is ground level
 	// Loop through until empty
 	while(!_Status.empty())
 	{
 		switch(_Status[0])
 		{
-			/*case Key_Type::KEY_W:
-				Vy++;
+			case Key_Type::KEY_W:
+				tZ++;
+				printf("Z moved to %f\n", tZ);
 			break;
 			case Key_Type::KEY_A:
-				Vx--;
+				
 			break;
 			case Key_Type::KEY_S:
-				Vy--;
+				tZ--;
+				printf("Z moved to %f\n", tZ);
 			break;
 			case Key_Type::KEY_D:
-				Vx++;
-			break;*/
+				
+			break;
 			case Key_Type::MOUSE_1: // Left click move player
 			case Key_Type::MOUSE_2: // Middle click undecided, just move player for now.
 			{
@@ -211,7 +213,6 @@ void HandleInput()
 				_Status.erase(_Status.begin(), _Status.begin() + 2);
 				f32 tX = (f32)(s32)Player->Coord().X;
 				f32 tY = (f32)(s32)Player->Coord().Y;
-				f32 tZ = 0.0f; // Remember, zero is ground level
 				u8 Buffer[32];
 				u8 *pBuf = &Buffer[0];
 				RawReader::Write<u8>(&pBuf, MAP_TILE); 
