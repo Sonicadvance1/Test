@@ -39,7 +39,6 @@ class cTile
 		Size += RawReader::Write<f32>(Out, _X);
 		Size += RawReader::Write<f32>(Out, _Y);
 		Size += RawReader::Write<f32>(Out, _Z);
-		printf("%f,%f, %f\n", _X, _Y, _Z);
 		return Size;
 	}
 	
@@ -94,10 +93,8 @@ class cMap
 			_MapSize += RawReader::Write<u64>(&pMap, _Width);
 			_MapSize += RawReader::Write<u64>(&pMap, _Height);
 			TileMap::iterator it;
-			int num = 0;
 			for(it = _Tiles.begin(); it != _Tiles.end(); ++it)
 			{
-				printf("it: %d:", num++);
 				_MapSize += it->second.Read(&pMap);
 			}
 			printf("New Map size: %d\n", _MapSize); 
