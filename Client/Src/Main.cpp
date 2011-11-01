@@ -19,12 +19,13 @@ u32 CurrentPlayerID;
 
 // This drawing code REALLY REALLY shouldn't be here!
 GLuint Tex;
-void cMap::Draw()
+void cMap::Draw(cPlayer* Player)
 {
 	TileMap::iterator it;
 	for(it = _Tiles.begin(); it != _Tiles.end(); ++it)
 	{
-		Graphics::DrawCube({it->second._X, it->second._Y, it->second._Z, 1, 1, 1}, Tex);
+		// TODO: Adjust Z here later
+		Graphics::DrawCube({it->second._X - Player->Coord().X, it->second._Y - Player->Coord().Y, it->second._Z, 1, 1, 1}, Tex);
 	}
 }
 
@@ -292,18 +293,16 @@ int main(int argc, char **argv)
 		usleep(200);
 		HandleInput();
 		Graphics::Clear();
-		Test.Draw();
 		PlayerArray = Players::GetArray();
+		Test.Draw(PlayerArray[CurrentPlayerID]);
 		for(it = PlayerArray.begin(); it != PlayerArray.end(); ++it)
-			Graphics::DrawPlayer(it->second);
+			Graphics::DrawPlayer(it->second, PlayerArray[CurrentPlayerID]);
 		// Draw a rect around the square we are currently at.
-		f32 tX = (f32)(s32)Player->Coord().X;
-		f32 tY = (f32)(s32)Player->Coord().Y;
-		sCoord Lines[5] = { {tX, tY, -32.0f},
-							{tX + 1.0f, tY, -32.0f},
-							{tX + 1.0f, tY + 1.0f, -32.0f},
-							{tX, tY + 1.0f, -32.0f},
-							{tX, tY, -32.0f} };
+		sCoord Lines[5] = { {0.0f, 0.0f, -32.0f},
+							{1.0f, 0.0f, -32.0f},
+							{1.0f, 1.0f, -32.0f},
+							{0.0f, 1.0f, -32.0f},
+							{0.0f, 0.0f, -32.0f} };
 		Graphics::DrawLines(Lines, 5); 
 		Graphics::DrawRect({0, 0, .1, .1}, 0);
 		Graphics::Swap();

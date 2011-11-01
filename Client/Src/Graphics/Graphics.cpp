@@ -352,9 +352,10 @@ namespace Graphics
 		glPopMatrix();
 	}
 	// TODO: Make this complete
-	void DrawPlayer(cPlayer *Player)
+	void DrawPlayer(cPlayer *Player, cPlayer* Relation)
 	{
-		DrawRect({Player->Coord().X, Player->Coord().Y, 0.5, 2.0}, 0);
+		// TODO: Z relation
+		DrawRect({Player->Coord().X - Relation->Coord().X, Player->Coord().Y - Relation->Coord().Y, 0.5, 2.0}, 0);
 	}
 	void Init()
 	{

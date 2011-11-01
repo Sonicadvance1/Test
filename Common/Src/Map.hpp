@@ -164,7 +164,8 @@ class cMap
 			*Size = _MapSize;
 			return _Map;
 		}
-		void Draw();
+		// Draws the map in relation to player
+		void Draw(cPlayer* Player);
 };
 
 namespace Maps

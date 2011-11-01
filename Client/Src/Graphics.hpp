@@ -36,7 +36,8 @@ namespace Graphics
 	void DrawRect(sfRect Quad, GLuint Tex);
 	void DrawCube(sfCube Cube, GLuint Tex);
 	void DrawLines(sCoord *Lines, int Count);
-	void DrawPlayer(cPlayer *Player);
+	// Draws player PlayerID in relation to Relation
+	void DrawPlayer(cPlayer *Player, cPlayer* Relation);
 	void Clear();
 	void Swap();
 }
