@@ -201,13 +201,13 @@ namespace Graphics
 			colour = 0.0f;
 			glColor4f(colour, 1.0, 1.0, 1.0);
 			glTexCoord2f(0.0f, 0.0f);
-			glVertex3f(Quad.x, Quad.y, -32); // Top Left
+			glVertex3f(Quad.x, Quad.y, Quad.z); // Top Left
 			glTexCoord2f(1.0f, 0.0f);
-			glVertex3f(Quad.x + Quad.w, Quad.y, -32); // Top Right
+			glVertex3f(Quad.x + Quad.w, Quad.y, Quad.z); // Top Right
 			glTexCoord2f(1.0f, 1.0f);
-			glVertex3f(Quad.x + Quad.w, Quad.y + Quad.h, -32); // Bottom Right
+			glVertex3f(Quad.x + Quad.w, Quad.y + Quad.h, Quad.z); // Bottom Right
 			glTexCoord2f(0.0f, 1.0f);
-			glVertex3f(Quad.x, Quad.y + Quad.h, -32); // Bottom Left
+			glVertex3f(Quad.x, Quad.y + Quad.h, Quad.z); // Bottom Left
 		glEnd();
 		glPopMatrix();
 	}
@@ -355,7 +355,7 @@ namespace Graphics
 	void DrawPlayer(cPlayer *Player, cPlayer* Relation)
 	{
 		// TODO: Z relation
-		DrawRect({Player->Coord().X - Relation->Coord().X, Player->Coord().Y - Relation->Coord().Y, 0.5, 2.0}, 0);
+		DrawRect({Player->Coord().X - Relation->Coord().X, Player->Coord().Y - Relation->Coord().Y, 0.5, 2.0, -32 + Player->Coord().Z}, 0);
 	}
 	void Init()
 	{

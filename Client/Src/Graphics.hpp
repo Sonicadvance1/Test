@@ -9,11 +9,11 @@
 // Rectangles for 2D
 struct sRect
 {
-	s64 x, y, w, h;
+	s64 x, y, w, h, z;
 };
 struct sfRect
 {
-	f32 x, y, w, h;
+	f32 x, y, w, h, z;
 };
 // Cube for 3D
 // X, Y, Z is coordinates

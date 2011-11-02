@@ -71,14 +71,15 @@ void cPlayer::Player_Thread()
 							case SubCommandType::PLAYERDATA_NAME:
 							{
 								u8* Username = new u8[64];
-								f32 X, Y;
+								f32 X, Y, Z;
 								RawReader::ReadString(&SubData, Username);
 								X = RawReader::Read<f32>(&SubData);
 								Y = RawReader::Read<f32>(&SubData);
+								Z = RawReader::Read<f32>(&SubData);
 								printf("Player %s is online!\n", Username, X, Y);
 								cPlayer *tmp = new cPlayer(PlayerID);
 								tmp->SetName(Username);
-								tmp->SetCoord(X, Y);
+								tmp->SetCoord(X, Y, Z);
 								Players::InsertPlayer(PlayerID, tmp);
 								delete[] Username;
 							}
@@ -196,7 +197,7 @@ void HandleInput()
 				double Angle;
 				X = (s32)_Status[1];
 				Y = (s32)_Status[2];
-				Angle = atan2(Y - DEFAULT_HEIGHT / 2 , X - DEFAULT_WIDTH / 2);
+				Angle = atan2(X - DEFAULT_WIDTH / 2, Y - DEFAULT_HEIGHT / 2);
 				printf("Clicked %d at %d %d %lf g\n", _Status[0], X, Y, Angle);
 				_Status.erase(_Status.begin(), _Status.begin() + 2);
 

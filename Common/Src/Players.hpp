@@ -38,10 +38,11 @@ class cPlayer
 			_Coord.Y -= MOVE_AMOUNT * cos(Angle);
 			_Coord.X += MOVE_AMOUNT * sin(Angle);
 		}
-		void SetCoord(f32 X, f32 Y)
+		void SetCoord(f32 X, f32 Y, f32 Z)
 		{
 			_Coord.Y = Y;
 			_Coord.X = X;
+			_Coord.Z = Z;
 		}
 		// Sends a packet
 		s32 Send(u8 *buf, u32 size)

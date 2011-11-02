@@ -101,6 +101,7 @@ void cPlayer::Player_Thread()
 									sCoord tCoord = it->second->Coord();
 									SubDataSize += RawReader::Write<f32>(&pSubData, tCoord.X);
 									SubDataSize += RawReader::Write<f32>(&pSubData, tCoord.Y);
+									SubDataSize += RawReader::Write<f32>(&pSubData, tCoord.Z);
 									Size = RawReader::CreatePacket(Packet, CommandType::PLAYERDATA, SubCommandType::PLAYERDATA_NAME, it->first, SubData, SubDataSize);
 									_Socket->Send(Packet, Size);
 								}
