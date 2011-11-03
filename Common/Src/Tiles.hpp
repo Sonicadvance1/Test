@@ -1,19 +1,19 @@
 #ifndef TILES_HPP_
 #define TILES_HPP_
+#include <map>
 
 #include "RawReader.hpp"
-#include "Map.hpp"
 
 enum MAP_TYPES
 {
 	MAP_TILE = 0x0,
 	MAP_ENTITY
-} ;
+};
 
 enum class TILE_TYPE : u16
 {
-	TYPE_GRASS
-} ;
+	GRASS = 0x0
+};
 
 // std::triple
 #define make_triple(X, Y, Z) std::make_pair(std::make_pair(X, Y), Z)
@@ -47,9 +47,15 @@ class cTile
 		Size += RawReader::Write<TILE_TYPE>(Out, _Type);
 		return Size;
 	}
+	TILE_TYPE Type()
+	{
+		return _Type;
+	}
 	
 };
 
 typedef std::map<TileTriple, cTile> TileMap;
+float* GetTexCoord(TILE_TYPE Type, float *Coords);
+float* GetColourCoord(TILE_TYPE Type, float *Coords);
 #endif
 

@@ -2,6 +2,7 @@
 #define GRAPHICS_HPP_
 #include "Common.hpp"
 #include "Players.hpp"
+#include "Tiles.hpp"
 #include <GL/glxew.h>
 #include <GL/gl.h>
 #include <string>
@@ -34,10 +35,11 @@ namespace Graphics
 	void Init();
 	GLuint LoadTexture(std::string filename);
 	void DrawRect(sfRect Quad, GLuint Tex);
-	void DrawCube(sfCube Cube, GLuint Tex);
 	void DrawLines(sCoord *Lines, int Count);
 	// Draws player PlayerID in relation to Relation
 	void DrawPlayer(cPlayer *Player, cPlayer* Relation);
+	// Draws tile in relation to the player
+	void DrawTile(cTile *Tile, cPlayer *Relation);
 	void Clear();
 	void Swap();
 }

@@ -1,9 +1,10 @@
 #ifndef MAP_HPP_
 #define MAP_HPP_
-#include <map>
+
 #include <iostream>
 #include <utility>
 #include "Tiles.hpp"
+#include "Players.hpp"
 
 #define MAP_DIR "Maps/"
 
@@ -160,7 +161,7 @@ namespace Maps
 				0x00, 0x00, 0x00, 0x00,	// _X = 0
 				0x00, 0x00, 0x00, 0x00,	// _Y = 0
 				0x00, 0x00, 0x00, 0x00,	// _Z = 0
-				0x00, 0x00				// _Type = 0
+				0x00, 0x00				// _Type = Grass
 			};
 			// Alright, write the default map to this file
 			if(fp)

@@ -4,6 +4,7 @@ set(SRCS	Src/Crypto.cpp
 			Src/Players.cpp
 			Src/RawReader.cpp
 			Src/Socket.cpp
+			Src/Tiles.cpp
 			)
 
 add_library(common ${SRCS})

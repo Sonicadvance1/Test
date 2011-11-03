@@ -1,4 +1,5 @@
 #include "../Window.hpp"
+#include "../Graphics.hpp"
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -181,6 +182,7 @@ int LoadPNG(const char *filename, GLuint *Texture)
 
 namespace Graphics
 {
+	GLuint _Terrain;
 	GLuint LoadTexture(std::string filename)
 	{
 		//Simple Load texture
@@ -212,7 +214,7 @@ namespace Graphics
 		glPopMatrix();
 	}
 	
-	void DrawCube(sfCube Cube, GLuint Tex)
+	void DrawCube(sfCube Cube, float *TexCoords, float *ColourCoords)
 	{
 		// we need to NOT use immediate mode, is super slow compared to other ways
 
@@ -249,82 +251,15 @@ namespace Graphics
 				Cube.x + Cube.w, Cube.y + Cube.w, -32 + Cube.z + Cube.d, // Bottom Right
 				
 				}; // 24 of vertex coords
-		// This may be useful later with lighting?
-		// Real lighting may be better, or shader based lighting?
-		GLfloat colours[] = {
-			1.0f, 1.0f, 1.0f, 1.0f,
-			1.0f, 1.0f, 1.0f, 1.0f,
-			1.0f, 1.0f, 1.0f, 1.0f,
-			1.0f, 1.0f, 1.0f, 1.0f,
-			
-			1.0f, 1.0f, 1.0f, 1.0f,
-			1.0f, 1.0f, 1.0f, 1.0f,
-			1.0f, 1.0f, 1.0f, 1.0f,
-			1.0f, 1.0f, 1.0f, 1.0f,
-
-			1.0f, 1.0f, 1.0f, 1.0f,
-			1.0f, 1.0f, 1.0f, 1.0f,
-			1.0f, 1.0f, 1.0f, 1.0f,
-			1.0f, 1.0f, 1.0f, 1.0f,
-
-			1.0f, 1.0f, 1.0f, 1.0f,
-			1.0f, 1.0f, 1.0f, 1.0f,
-			1.0f, 1.0f, 1.0f, 1.0f,
-			1.0f, 1.0f, 1.0f, 1.0f,
-
-			1.0f, 1.0f, 1.0f, 1.0f,
-			1.0f, 1.0f, 1.0f, 1.0f,
-			1.0f, 1.0f, 1.0f, 1.0f,
-			1.0f, 1.0f, 1.0f, 1.0f,
-
-			1.0f, 1.0f, 1.0f, 1.0f,
-			1.0f, 1.0f, 1.0f, 1.0f,
-			1.0f, 1.0f, 1.0f, 1.0f,
-			1.0f, 1.0f, 1.0f, 1.0f,
-		};
-		// Can be useful later when we want
-		// Textures on different sides of the cubes
-		// Since later all of our textures will be merged in to one large texture
-		GLfloat texCoords[] = {
-			0.0, 0.0,
-			0.0, 1.0,
-			1.0, 1.0,
-			1.0, 0.0,
-
-			0.0, 0.0,
-			0.0, 1.0,
-			1.0, 1.0,
-			1.0, 0.0,
-
-			0.0, 0.0,
-			0.0, 1.0,
-			1.0, 1.0,
-			1.0, 0.0,
-
-			0.0, 0.0,
-			0.0, 1.0,
-			1.0, 1.0,
-			1.0, 0.0,
-
-			0.0, 0.0,
-			0.0, 1.0,
-			1.0, 1.0,
-			1.0, 0.0,
-
-			0.0, 0.0,
-			0.0, 1.0,
-			1.0, 1.0,
-			1.0, 0.0,
-		};
 		// activate and specify pointer to vertex array
 		glEnableClientState(GL_VERTEX_ARRAY);
 		glEnableClientState(GL_COLOR_ARRAY);
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 		//glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, Tex);
+		glBindTexture(GL_TEXTURE_2D, _Terrain);
 		glClientActiveTexture(GL_TEXTURE0);
-		glTexCoordPointer(2, GL_FLOAT, 0, texCoords);
-		glColorPointer(4, GL_FLOAT, 0, colours);
+		glTexCoordPointer(2, GL_FLOAT, 0, TexCoords);
+		glColorPointer(4, GL_FLOAT, 0, ColourCoords);
 		glVertexPointer(3, GL_FLOAT, 0, vertices);
 
 		// draw a cube
@@ -357,6 +292,13 @@ namespace Graphics
 		// TODO: Z relation
 		DrawRect({Player->Coord().X - Relation->Coord().X, Player->Coord().Y - Relation->Coord().Y, 0.5, 2.0, -32 + Player->Coord().Z}, 0);
 	}
+
+	void DrawTile(cTile *Tile, cPlayer *Relation)
+	{
+		// TODO: Adjust Z here later
+		float TexCoords[48], ColourCoords[96];
+		Graphics::DrawCube({Tile->_X - Relation->Coord().X, Tile->_Y - Relation->Coord().Y, Tile->_Z, 1, 1, 1}, GetTexCoord(Tile->Type(), TexCoords), GetColourCoord(Tile->Type(), ColourCoords));
+	}
 	void Init()
 	{
 		if (glewInit() != GLEW_OK)
@@ -385,6 +327,8 @@ namespace Graphics
 
 		glClearDepth(1.0f);                         // Depth Buffer Setup
 		glEnable(GL_DEPTH_TEST);                        // Enables Depth Testing
+
+		_Terrain = Graphics::LoadTexture("Resources/terrain.png");
 	}
 	void Clear()
 	{

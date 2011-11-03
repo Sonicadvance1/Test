@@ -3,6 +3,7 @@
 // Some defines
 #define MAXUSERS 65535
 #define PI 3.14159265
+#define MAXPACKETSIZE (1024* 2048) // 2 Megabyte
 
 //unsigned types
 typedef unsigned char u8;

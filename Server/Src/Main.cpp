@@ -33,18 +33,18 @@ std::mutex mDeletions;
 
 void cPlayer::Player_Thread()
 {
-	u8 buf[512];
+	u8 buf[MAXPACKETSIZE];
 	u8 *pbuf = buf;
 	s32 CurrentLoc;
 	for(;;)
 	{
 		if(_Socket->HasData())
 		{
-			memset(buf, 512, 0);
+			memset(buf, MAXPACKETSIZE, 0);
 			pbuf = buf;
 			CurrentLoc = 0;
 			
-			s32 result = _Socket->Recv( buf, sizeof(buf));
+			s32 result = _Socket->Recv( buf, MAXPACKETSIZE);
 			if(result == 0) // Player closed connection
 				goto end; // For now this will auto destroy the class
 			if(result < 0) // Recv error!
@@ -120,7 +120,8 @@ void cPlayer::Player_Thread()
 							u32 MapSize;
 							u8* MapArray = Maps::_Maps[0]->GetMap(&MapSize);
 							// We need to allocate this size because it could get massive.
-							MapPacket = new u8[MapSize + 9];
+							// We align it to a 4-byte boundary because I've gotten problems with it before
+							MapPacket = new u8[(4 - (MapSize + 9) % 4) + (MapSize + 9)];
 							Size = RawReader::CreatePacket(MapPacket, CommandType::MAP, SubCommandType::NONE, 0/* MAP ID? */, MapArray, MapSize);
 							_Socket->Send(MapPacket, Size);
 							delete[] MapPacket;

@@ -24,14 +24,13 @@ void cMap::Draw(cPlayer* Player)
 	TileMap::iterator it;
 	for(it = _Tiles.begin(); it != _Tiles.end(); ++it)
 	{
-		// TODO: Adjust Z here later
-		Graphics::DrawCube({it->second._X - Player->Coord().X, it->second._Y - Player->Coord().Y, it->second._Z, 1, 1, 1}, Tex);
+		Graphics::DrawTile(&it->second, Player);
 	}
 }
 
 void cPlayer::Player_Thread()
 {
-	u8 buf[512];
+	u8 buf[MAXPACKETSIZE];
 	u8 *pbuf = buf;
 	s32 CurrentLoc;
 	while(Running)
@@ -41,7 +40,7 @@ void cPlayer::Player_Thread()
 			pbuf = buf;
 			CurrentLoc = 0;
 			
-			s32 result = _Socket->Recv( buf, sizeof(buf));
+			s32 result = _Socket->Recv( buf, MAXPACKETSIZE);
 			if(result == 0) // Player closed connection
 				goto end; // For now this will auto destroy the class
 			if(result < 0) // Recv error!
@@ -217,13 +216,14 @@ void HandleInput()
 				f32 tY = (f32)(s32)Player->Coord().Y;
 				u8 Buffer[32];
 				u8 *pBuf = &Buffer[0];
-				RawReader::Write<u8>(&pBuf, MAP_TILE); 
-				RawReader::Write<f32>(&pBuf, tX);
-				RawReader::Write<f32>(&pBuf, tY);
-				RawReader::Write<f32>(&pBuf, tZ);
+				int SubSize = RawReader::Write<u8>(&pBuf, MAP_TILE); 
+				SubSize += RawReader::Write<f32>(&pBuf, tX);
+				SubSize += RawReader::Write<f32>(&pBuf, tY);
+				SubSize += RawReader::Write<f32>(&pBuf, tZ);
+				SubSize += RawReader::Write<TILE_TYPE>(&pBuf, TILE_TYPE::GRASS);
 				// Now let's send this to the server!
 				u8 Packet[128];
-				int Size = RawReader::CreatePacket(Packet, CommandType::INSERT_TILE, SubCommandType::NONE, CurrentPlayerID, Buffer, 13);
+				int Size = RawReader::CreatePacket(Packet, CommandType::INSERT_TILE, SubCommandType::NONE, CurrentPlayerID, Buffer, SubSize);
 				Player->Send(Packet, Size);
 			}
 			break;
@@ -284,8 +284,6 @@ int main(int argc, char **argv)
 	
 	Windows::Init();
 	Graphics::Init();
-	// Loading texture shouldn't really be here
-	Tex = Graphics::LoadTexture("Resources/terrain.png");
 	
 	std::map<u32, cPlayer*> PlayerArray;
 	std::map<u32, cPlayer*>::iterator it;
