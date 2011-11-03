@@ -73,9 +73,9 @@ void cPlayer::Player_Thread()
 						if(Rows > 1) // Found our user
 						{
 							// Should send all of our shit here
-							printf("Found User %s\n", Username);
 							u32 OldID = _ID;
 							_ID = atoi(Results[Cols]); // Gives us the First column in the returned array which is ID!
+							printf("Found User %s: %d\n", Username, _ID);
 							// Create the Login packet and send it
 							int Size = RawReader::CreatePacket(Packet, CommandType::LOGIN, SubCommandType::NONE, _ID, 0, 0);
 							_Socket->Send(Packet, Size);
@@ -120,9 +120,9 @@ void cPlayer::Player_Thread()
 							u32 MapSize;
 							u8* MapArray = Maps::_Maps[0]->GetMap(&MapSize);
 							// We need to allocate this size because it could get massive.
+							// We align it to a 4-byte boundary because I've gotten problems with it before
 							MapPacket = new u8[MapSize + 9];
 							Size = RawReader::CreatePacket(MapPacket, CommandType::MAP, SubCommandType::NONE, 0/* MAP ID? */, MapArray, MapSize);
-							printf("Mapsize: %d Packet Size: %d\n", MapSize, Size);
 							_Socket->Send(MapPacket, Size);
 							delete[] MapPacket;
 							

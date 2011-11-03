@@ -21,13 +21,15 @@ class cTile
 {
 	public:
 		f32 _X, _Y, _Z;
+		u16 _Type; // This is what type of tile it is
 	public:
 	cTile(){}
-	cTile(u8 **Buffer) // TODO: This needs a sub type of which type of tile. Not quite there
+	cTile(u8 **Buffer) 
 	{
 		_X = RawReader::Read<f32>(Buffer);
 		_Y = RawReader::Read<f32>(Buffer);
 		_Z = RawReader::Read<f32>(Buffer);
+		_Type = RawReader::Read<u16>(Buffer);
 	}
 	TileTriple Triple()
 	{
@@ -39,6 +41,7 @@ class cTile
 		Size += RawReader::Write<f32>(Out, _X);
 		Size += RawReader::Write<f32>(Out, _Y);
 		Size += RawReader::Write<f32>(Out, _Z);
+		Size += RawReader::Write<u16>(Out, _Type);
 		return Size;
 	}
 	
@@ -79,6 +82,8 @@ class cMap
 				default:
 					// Why are we loading something that we don't know what it is?
 					printf("Trying to load unknown object %02x!\n", Object);
+					printf("-5, %02X %02X %02X %02X %02X\n", (*Buffer)[-6], (*Buffer)[-5], (*Buffer)[-4], (*Buffer)[-3], (*Buffer)[-2]);
+					printf("+5, %02X %02X %02X %02X %02X\n", (*Buffer)[0], (*Buffer)[1], (*Buffer)[2], (*Buffer)[3], (*Buffer)[4]);
 					exit(0);
 				break;
 			}
@@ -140,7 +145,7 @@ class cMap
 			int result = fread(Buffer, 1, Filesize, fp);
 			if(result != Filesize) // What?
 			{
-				printf("Couldn't read all of the file?! Size: %d, Read: %d\n", Filesize, result);
+				printf("Couldn't read all of the file?! Size: %ld, Read: %d\n", Filesize, result);
 				return;
 			}
 			Load(Buffer, Filesize);
@@ -192,6 +197,7 @@ namespace Maps
 				0x00, 0x00, 0x00, 0x00,	// _X = 0
 				0x00, 0x00, 0x00, 0x00,	// _Y = 0
 				0x00, 0x00, 0x00, 0x00,	// _Z = 0
+				0x00, 0x00				// _Type = 0
 			};
 			// Alright, write the default map to this file
 			if(fp)
@@ -229,6 +235,7 @@ namespace Maps
 				fclose(fp);
 				delete it->second;
 			}
+			printf("Shutdown: %d\n", it->first);
 		}
 		_Maps.clear();
 	}

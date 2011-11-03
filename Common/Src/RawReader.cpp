@@ -21,7 +21,6 @@ namespace RawReader
 	u16 ReadString(u8 **Buffer, u8 *Out)
 	{
 		u16 Size = Read<u16>(Buffer);
-		printf("Size is %d:%p\n", Size, *Buffer);
 		memcpy(Out, *Buffer, Size);
 		Out[Size] = '\0'; // Null Terminate it
 		*Buffer += Size;
@@ -33,8 +32,8 @@ namespace RawReader
 		// Basically create a buffer with
 		// size of 2 + 2 + 1 + 2 + sizeof(Data) + 2
 		// Really just DataSize + 9, no null terminator
-		const u16 PacketSize = DataSize + 9;
-		const u16 HalfPacketSize = PacketSize / 2; // Is this really needed?
+		u16 PacketSize = DataSize + 9;
+		u16 HalfPacketSize = PacketSize / 2; // Is this really needed?
 		//Buffer = new u8[PacketSize]; // Should we allocate the packet size here?
 		memcpy(&Buffer[0], &Command, 2);
 		memcpy(&Buffer[2], &PacketSize, 2);
@@ -48,7 +47,7 @@ namespace RawReader
 	// Gets the next packet
 	bool NextPacket(u8** Buffer, s32 *CurrentLoc, s32 MaxSize)
 	{
-		u16 PacketSize = (u16)*(*Buffer + 2);
+		u16 PacketSize = GetFullSize(Buffer[0]);
 		*CurrentLoc += PacketSize;
 		if(*CurrentLoc == MaxSize)
 			return false;
@@ -60,7 +59,8 @@ namespace RawReader
 	// Just gets the packets expected size
 	u16 GetFullSize(u8* Buffer)
 	{
-		return (u16)*(Buffer + 2);
+		// Fullsize is at 2-3
+		return *(u16*)&Buffer[2];
 	}
 	// Just gets the Command
 	CommandType GetCommand(u8* Buffer)
@@ -78,7 +78,7 @@ namespace RawReader
 	u16 GetID(u8* Buffer)
 	{
 		// ID is at offset 5-6
-		return (u16)*(Buffer + 5);
+		return *(u16*)&Buffer[5];
 	}
 
 	// Just gets a pointer to the Data section
@@ -91,7 +91,7 @@ namespace RawReader
 	{
 		// Datasize is just the packetsize - 9
 		// PacketSize is offset 2-3
-		u16 PacketSize = (u16)*(Buffer + 2);
+		u16 PacketSize = GetFullSize(Buffer);
 		return PacketSize - 9;
 	}
 }
