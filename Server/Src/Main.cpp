@@ -120,7 +120,6 @@ void cPlayer::Player_Thread()
 							u32 MapSize;
 							u8* MapArray = Maps::_Maps[0]->GetMap(&MapSize);
 							// We need to allocate this size because it could get massive.
-							// We align it to a 4-byte boundary because I've gotten problems with it before
 							MapPacket = new u8[MapSize + 9];
 							Size = RawReader::CreatePacket(MapPacket, CommandType::MAP, SubCommandType::NONE, 0/* MAP ID? */, MapArray, MapSize);
 							_Socket->Send(MapPacket, Size);

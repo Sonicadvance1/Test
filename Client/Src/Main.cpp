@@ -285,7 +285,7 @@ int main(int argc, char **argv)
 	Windows::Init();
 	Graphics::Init();
 	// Loading texture shouldn't really be here
-	Tex = Graphics::LoadTexture("Resources/Watermelon.png");
+	Tex = Graphics::LoadTexture("Resources/terrain.png");
 	
 	std::map<u32, cPlayer*> PlayerArray;
 	std::map<u32, cPlayer*>::iterator it;
