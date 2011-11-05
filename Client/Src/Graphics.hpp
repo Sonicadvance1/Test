@@ -33,6 +33,7 @@ struct sfCube
 namespace Graphics
 {
 	void Init();
+	void Shutdown();
 	GLuint LoadTexture(std::string filename);
 	void DrawRect(sfRect Quad, GLuint Tex);
 	void DrawLines(sCoord *Lines, int Count);
@@ -40,6 +41,8 @@ namespace Graphics
 	void DrawPlayer(cPlayer *Player, cPlayer* Relation);
 	// Draws tile in relation to the player
 	void DrawTile(cTile *Tile, cPlayer *Relation);
+	// Draws text to the screen
+	void DrawText(const char *Text, sCoord Coord, bool TwoD = true);
 	void Clear();
 	void Swap();
 }

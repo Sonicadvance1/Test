@@ -9,16 +9,15 @@
 #include "Map.hpp"
 #include "Graphics.hpp"
 #include "Crypto.hpp"
-#include <GL/gl.h>
 
 bool Running = true;
 cPlayer *Player;
 cSocket *Socket;
 cMap Test;
 u32 CurrentPlayerID;
+std::vector<std::pair<u32, std::string>> TextList;
 
 // This drawing code REALLY REALLY shouldn't be here!
-GLuint Tex;
 void cMap::Draw(cPlayer* Player)
 {
 	TileMap::iterator it;
@@ -51,6 +50,7 @@ void cPlayer::Player_Thread()
 				switch(RawReader::GetCommand(pbuf))
 				{
 					case CommandType::LOGIN: // Return Login Packet packet
+					{
 						CurrentPlayerID = RawReader::GetID(pbuf);
 						if(CurrentPlayerID == 0) // zero means error
 						{
@@ -59,6 +59,17 @@ void cPlayer::Player_Thread()
 							goto end;
 						}
 						Players::InsertPlayer(CurrentPlayerID, this); // Since we aren't inserted in to the array at all until we log in.
+						u8 *Username = new u8[64];
+						u8 *pData = RawReader::GetData(pbuf);
+						RawReader::ReadString(&pData, Username);
+						SetName(Username);
+						f32 X, Y, Z;
+						X = RawReader::Read<f32>(&pData);
+						Y = RawReader::Read<f32>(&pData);
+						Z = RawReader::Read<f32>(&pData);
+						SetCoord(X, Y, Z);
+						delete[] Username;
+					}
 					break;
 					case CommandType::PLAYERDATA:
 					{
@@ -75,6 +86,9 @@ void cPlayer::Player_Thread()
 								X = RawReader::Read<f32>(&SubData);
 								Y = RawReader::Read<f32>(&SubData);
 								Z = RawReader::Read<f32>(&SubData);
+								char Signin[64];
+								sprintf(Signin, "Player %s is online!", (char*)Username);
+								TextList.push_back(make_pair(2000, std::string(Signin)));
 								printf("Player %s is online!\n", Username, X, Y);
 								cPlayer *tmp = new cPlayer(PlayerID);
 								tmp->SetName(Username);
@@ -95,8 +109,7 @@ void cPlayer::Player_Thread()
 						u32 PlayerID = RawReader::GetID(pbuf); // Get the player's ID that logged in
 						SubCommandType SubCommand = RawReader::GetSubCommand(pbuf);
 						u8 *SubData = RawReader::GetData(pbuf);
-						if(PlayerID == _ID)
-							break; // Just ourselves logging in
+					
 						// TODO: We should just put all the information in one packet
 						switch(SubCommand)
 						{
@@ -104,10 +117,21 @@ void cPlayer::Player_Thread()
 							{
 								u8* Username = new u8[64];
 								RawReader::ReadString(&SubData, Username);
-								printf("Player %s Logged in!\n", Username);
-								cPlayer *tmp = new cPlayer(PlayerID);
-								tmp->SetName(Username);
-								Players::InsertPlayer(PlayerID, tmp);
+								char Signin[64];
+								if(PlayerID != _ID)
+								{
+									sprintf(Signin, "Player %s logged in!", (char*)Username);
+									TextList.push_back(make_pair(2000, std::string(Signin)));
+									printf("Player %s Logged in!\n", Username);
+									cPlayer *tmp = new cPlayer(PlayerID);
+									tmp->SetName(Username);
+									Players::InsertPlayer(PlayerID, tmp);
+								}
+								else
+								{
+									// Just setting our username here
+									SetName(Username);
+								}
 								delete[] Username;
 							}
 							break;
@@ -121,6 +145,9 @@ void cPlayer::Player_Thread()
 					{
 						u32 PlayerID = RawReader::GetID(pbuf);
 						std::map<u32, cPlayer*> PlayerArray = Players::GetArray();
+						char Signin[64];
+						sprintf(Signin, "Player %s logged out!", (char*)PlayerArray[PlayerID]->GetName());
+						TextList.push_back(make_pair(2000, std::string(Signin)));
 						printf("%s Logged out!\n", PlayerArray[PlayerID]->GetName());
 						Players::RemovePlayer(PlayerID);
 					}
@@ -304,8 +331,22 @@ int main(int argc, char **argv)
 							{0.0f, 0.0f, -32.0f} };
 		Graphics::DrawLines(Lines, 5); 
 		Graphics::DrawRect({0, 0, .1, .1}, 0);
+
+		std::vector<std::pair<u32, std::string>>::iterator it;
+		f32 _Y = 0;
+		for(it = TextList.begin(); it < TextList.end(); ++it)
+		{
+			if(it->first-- > 0)
+			{
+				Graphics::DrawText(it->second.c_str(), {0, _Y});
+				_Y += 16;
+			}
+			else
+				TextList.erase(it);
+		}
 		Graphics::Swap();
 	}
+	Graphics::Shutdown();
 	Windows::Shutdown();
 	delete Player;
 	return 0;

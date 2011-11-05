@@ -1,14 +1,6 @@
 /*
  *  FIPS-180-2 compliant SHA-256 implementation
- *  written by Christophe Devine
- *
- *  This code has been distributed as PUBLIC DOMAIN.
- *
- *  Although normally licensed under the GPL on the author's web site,
- *  he has given me permission to distribute it as public domain as 
- *  part of md5deep. THANK YOU! Software authors are encouraged to
- *  use the GPL'ed version of this code available at:
- *  http://www.cr0.net:8040/code/crypto/sha256/ whenever possible.
+ *  written by Christophe Devine. PUBLIC DOMAIN
  */
 
 /* $Id$ */

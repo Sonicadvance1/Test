@@ -70,14 +70,25 @@ void cPlayer::Player_Thread()
 						Database::Table(Command, &Results, &Rows, &Cols);
 
 						u8 Packet[256];
+						u8 SubData[64];
+						u8 *pSubData = &SubData[0];
+						int SubDataSize;
 						if(Rows > 1) // Found our user
 						{
+							// Overwrite with the username stored in the database since it isn't case sensitive
+							memcpy(Username, Results[Cols + 1], strlen(Results[Cols + 1]));
 							// Should send all of our shit here
 							u32 OldID = _ID;
 							_ID = atoi(Results[Cols]); // Gives us the First column in the returned array which is ID!
 							printf("Found User %s: %d\n", Username, _ID);
 							// Create the Login packet and send it
-							int Size = RawReader::CreatePacket(Packet, CommandType::LOGIN, SubCommandType::NONE, _ID, 0, 0);
+							int SubDataSize = RawReader::WriteString(&pSubData, (const char*)Username, strlen((const char*)Username));
+							// TODO: Fill in with the coordinates in the database
+									sCoord tCoord = Coord();
+									SubDataSize += RawReader::Write<f32>(&pSubData, tCoord.X);
+									SubDataSize += RawReader::Write<f32>(&pSubData, tCoord.Y);
+									SubDataSize += RawReader::Write<f32>(&pSubData, tCoord.Z);
+							int Size = RawReader::CreatePacket(Packet, CommandType::LOGIN, SubCommandType::NONE, _ID, SubData, SubDataSize);
 							_Socket->Send(Packet, Size);
 							// Now we need to move the player to the new map location
 							Players::RemovePlayer(OldID);
@@ -87,8 +98,6 @@ void cPlayer::Player_Thread()
 							// Send player all connected Users
 							std::map<u32, cPlayer*> PlayerArray = Players::GetArray();
 							std::map<u32, cPlayer*>::iterator it;
-							u8 SubData[64];
-							u8 *pSubData;
 							memset(Packet, 256, 0);
 							// Send User all connected players
 							for(it = PlayerArray.begin(); it != PlayerArray.end(); ++it)
@@ -97,7 +106,7 @@ void cPlayer::Player_Thread()
 								pSubData = &SubData[0];
 								if(it->first < MAXUSERS && it->first != _ID) // Make sure it isn't a client that isn't logged in and isn't ourselves
 								{
-									int SubDataSize = RawReader::WriteString(&pSubData, (const char*)it->second->GetName(), strlen((const char*)it->second->GetName()));
+									SubDataSize = RawReader::WriteString(&pSubData, (const char*)it->second->GetName(), strlen((const char*)it->second->GetName()));
 									sCoord tCoord = it->second->Coord();
 									SubDataSize += RawReader::Write<f32>(&pSubData, tCoord.X);
 									SubDataSize += RawReader::Write<f32>(&pSubData, tCoord.Y);
@@ -110,7 +119,7 @@ void cPlayer::Player_Thread()
 							memset(Packet, 256, 0);
 							memset(&SubData, 64, 0);
 							pSubData = &SubData[0];
-							int SubDataSize = RawReader::WriteString(&pSubData, (const char*)GetName(), strlen((const char*)GetName()));
+							SubDataSize = RawReader::WriteString(&pSubData, (const char*)GetName(), strlen((const char*)GetName()));
 							Size = RawReader::CreatePacket(Packet, CommandType::LOGGED_IN, SubCommandType::PLAYERDATA_NAME, _ID, SubData, SubDataSize);
 							Players::SendAll(Packet, Size, _ID);
 
@@ -120,8 +129,8 @@ void cPlayer::Player_Thread()
 							u32 MapSize;
 							u8* MapArray = Maps::_Maps[0]->GetMap(&MapSize);
 							// We need to allocate this size because it could get massive.
-							// We align it to a 4-byte boundary because I've gotten problems with it before
-							MapPacket = new u8[(4 - (MapSize + 9) % 4) + (MapSize + 9)];
+							// We align it to a 8-byte boundary because I've gotten problems with it before
+							MapPacket = new u8[(8 - (MapSize + 9) % 8) + (MapSize + 9)];
 							Size = RawReader::CreatePacket(MapPacket, CommandType::MAP, SubCommandType::NONE, 0/* MAP ID? */, MapArray, MapSize);
 							_Socket->Send(MapPacket, Size);
 							delete[] MapPacket;

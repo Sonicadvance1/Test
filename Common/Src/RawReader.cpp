@@ -34,7 +34,6 @@ namespace RawReader
 		// Really just DataSize + 9, no null terminator
 		u16 PacketSize = DataSize + 9;
 		u16 HalfPacketSize = PacketSize / 2; // Is this really needed?
-		//Buffer = new u8[PacketSize]; // Should we allocate the packet size here?
 		memcpy(&Buffer[0], &Command, 2);
 		memcpy(&Buffer[2], &PacketSize, 2);
 		memcpy(&Buffer[4], &SubCommand, 1);

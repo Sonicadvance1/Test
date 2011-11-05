@@ -6,6 +6,7 @@
 #include <png.h>
 #include <string>
 #include <string.h>
+#include <FTGL/ftgl.h>
 
 
 
@@ -162,7 +163,7 @@ int LoadPNG(const char *filename, GLuint *Texture)
         
         glGenTextures(1, Texture);
         
-        printf("(loadTexture) width: %d height: %d\n", width, height); 
+        printf("(loadTexture) width: %ld height: %ld\n", width, height); 
         
         /* create a new texture object
          * and bind it to texname (unsigned integer > 0)
@@ -183,6 +184,7 @@ int LoadPNG(const char *filename, GLuint *Texture)
 namespace Graphics
 {
 	GLuint _Terrain;
+	FTFont *_Font[2];
 	GLuint LoadTexture(std::string filename)
 	{
 		//Simple Load texture
@@ -289,6 +291,24 @@ namespace Graphics
 	// TODO: Make this complete
 	void DrawPlayer(cPlayer *Player, cPlayer* Relation)
 	{
+		//Get our bounding box for the name
+		FTBBox Test = _Font[0]->BBox((char*)Player->GetName(), -1, FTPoint(0, 0, 0));
+		// Get the difference between the two sides;
+		FTPoint Test2 = Test.Upper() - Test.Lower();
+		const f32 ScaleX = 0.6, ScaleY = 0.6;
+		glPushMatrix();
+			// Make sure there is no texture
+			glBindTexture(GL_TEXTURE_2D, 0);
+			// Set it to white for the text
+			glColor4f(1.0, 1.0, 1.0, 1.0);
+			// Translate to the location
+			glTranslatef(Player->Coord().X - Relation->Coord().X - Test2.X() / 2 * ScaleX, Player->Coord().Y - Relation->Coord().Y + 2, -32 + Player->Coord().Z);
+			// Scale the font down in size
+			glScalef(ScaleX, ScaleY, 1);
+			// Now render it
+			// TODO: Put a grey rectangle underneath it to make it pop more
+			_Font[0]->Render((char*)Player->GetName(), -1, FTPoint(0, 0, 0));
+		glPopMatrix();
 		// TODO: Z relation
 		DrawRect({Player->Coord().X - Relation->Coord().X, Player->Coord().Y - Relation->Coord().Y, 0.5, 2.0, -32 + Player->Coord().Z}, 0);
 	}
@@ -298,6 +318,10 @@ namespace Graphics
 		// TODO: Adjust Z here later
 		float TexCoords[48], ColourCoords[96];
 		Graphics::DrawCube({Tile->_X - Relation->Coord().X, Tile->_Y - Relation->Coord().Y, Tile->_Z, 1, 1, 1}, GetTexCoord(Tile->Type(), TexCoords), GetColourCoord(Tile->Type(), ColourCoords));
+	}
+	void DrawText(const char *Text, sCoord Coord, bool TwoD)
+	{
+		_Font[TwoD]->Render(Text, -1, FTPoint(Coord.X, Coord.Y, Coord.Z));
 	}
 	void Init()
 	{
@@ -329,6 +353,21 @@ namespace Graphics
 		glEnable(GL_DEPTH_TEST);                        // Enables Depth Testing
 
 		_Terrain = Graphics::LoadTexture("Resources/terrain.png");
+
+		_Font[0] = new FTPolygonFont("/usr/share/fonts/truetype/freefont/FreeSerif.ttf");
+		_Font[1] = new FTPixmapFont("/usr/share/fonts/truetype/freefont/FreeSerif.ttf");
+		if(_Font[0]->Error() || _Font[1]->Error())
+		{
+			printf("Couldn't load font file!\n");
+			return;
+		}
+		_Font[0]->FaceSize(1);
+		_Font[1]->FaceSize(16);
+	}
+	void Shutdown()
+	{
+		delete _Font[0];
+		delete _Font[1];
 	}
 	void Clear()
 	{

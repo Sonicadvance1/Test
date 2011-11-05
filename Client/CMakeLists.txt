@@ -7,12 +7,15 @@ set(SRCS	Src/Main.cpp
 
 include(FindOpenGL)
 include(FindPNG)
-include_directories(${OPENGL_INCLUDE_DIR}, ${PNG_INCLUDE_DIR})
+include(FindFreetype)
+include_directories(${OPENGL_INCLUDE_DIR}, ${PNG_INCLUDE_DIR}, ${FREETYPE_INCLUDE_DIRS})
 set(LIBS common
 	GLEW
 	${OPENGL_LIBRARIES}
 	${X11_LIBRARIES}
 	${PNG_LIBRARIES}
+	${FREETYPE_LIBRARIES}
+	ftgl
 	)
 
 set(TEST_EXE Client)

@@ -24,11 +24,7 @@ typedef double f64;
 // Coordinates
 struct sCoord
 {
-	sCoord()
-	{
-		X = Y = Z = 0;
-	}
-	sCoord(f32 _X, f32 _Y, f32 _Z)
+	sCoord(f32 _X = 0, f32 _Y = 0, f32 _Z = 0)
 	{
 		X = _X;
 		Y = _Y;
