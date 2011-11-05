@@ -49,7 +49,7 @@ void CreateXWindow(void)
 void XEventThread()
 {
 	// We will get key events and stuff here
-	bool MousePressed[3]; // Mouse Press status
+	bool MousePressed[4]; // Mouse Press status
 	while(Running)
 	{
 		XEvent event;
@@ -100,11 +100,38 @@ void XEventThread()
 					}
 					_KeyStatus.push_back(event.xbutton.x);
 					_KeyStatus.push_back(event.xbutton.y);
+					_KeyStatus.push_back(true);
 				break;
 				case ButtonRelease: // Mouse Button Release
 					MousePressed[event.xbutton.button] = false;
+					switch(event.xbutton.button)
+					{
+						case 1: //Left
+							_KeyStatus.push_back(Key_Type::MOUSE_1);
+						break;
+						case 2: // Middle
+							_KeyStatus.push_back(Key_Type::MOUSE_2);
+						break;
+						case 3: // Right
+							_KeyStatus.push_back(Key_Type::MOUSE_3);
+						break;
+					}
+					_KeyStatus.push_back(event.xbutton.x);
+					_KeyStatus.push_back(event.xbutton.y);
+					_KeyStatus.push_back(false);
 				break;
 				case MotionNotify: // Mouse Movement
+					if(MousePressed[1] || MousePressed[2])
+					{
+						if(MousePressed[1])
+							_KeyStatus.push_back(Key_Type::MOUSE_1);
+						else if(MousePressed[2])
+							_KeyStatus.push_back(Key_Type::MOUSE_2);
+						
+						_KeyStatus.push_back(event.xmotion.x);
+						_KeyStatus.push_back(event.xmotion.y);
+						_KeyStatus.push_back(true);
+					}
 					// We don't handle this yet
 				break;
 				case ClientMessage: // For Window close event

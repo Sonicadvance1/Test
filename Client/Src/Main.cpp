@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/time.h>
 #include <unistd.h>
 #include <math.h>
 
@@ -45,7 +46,6 @@ void cPlayer::Player_Thread()
 				goto end; // For now this will auto destroy the class
 			if(result < 0) // Recv error!
 				goto end; // Just return for now
-			printf("Sweet, We got something %d big\n", result);
 			do
 			{
 				switch(RawReader::GetCommand(pbuf))
@@ -160,8 +160,20 @@ void cPlayer::Player_Thread()
 						u8 *SubData = RawReader::GetData(pbuf);
 						Angle = RawReader::Read<double>(&SubData);
 						std::map<u32, cPlayer*> PlayerArray = Players::GetArray();
-						printf("Player %s moved with angle %lf\n", PlayerArray[PlayerID]->GetName(), Angle);
-						PlayerArray[PlayerID]->Move(Angle);
+						PlayerArray[PlayerID]->SetMove(Angle);
+					}
+					break;
+					case CommandType::STOPMOVEMENT:
+					{
+						u32 PlayerID = RawReader::GetID(pbuf);
+						std::map<u32, cPlayer*> PlayerArray = Players::GetArray();
+						f32 X, Y, Z;
+						u8 *SubData = RawReader::GetData(pbuf);
+						X = RawReader::Read<f32>(&SubData);
+						Y = RawReader::Read<f32>(&SubData);
+						Z = RawReader::Read<f32>(&SubData);
+						PlayerArray[PlayerID]->StopMove();
+						PlayerArray[PlayerID]->SetCoord(X, Y, Z);
 					}
 					break;
 					case CommandType::MAP:
@@ -223,38 +235,58 @@ void HandleInput()
 				// After initial one on mouse, we have two more in the array for X and Y coordinates of mouse press.
 				// TODO: Convert to world coordinates!
 				s32 X, Y;
+				bool Pressed;
 				double Angle;
 				X = (s32)_Status[1];
 				Y = (s32)_Status[2];
+				Pressed = (bool)_Status[3];
 				Angle = atan2(X - DEFAULT_WIDTH / 2, Y - DEFAULT_HEIGHT / 2);
-				printf("Clicked %d at %d %d %lf g\n", _Status[0], X, Y, Angle);
-				_Status.erase(_Status.begin(), _Status.begin() + 2);
-
-				u8 Packet[256];
-				u8 SubData[64];
-				u8 *pSubData = &SubData[0];
-				int SubDataSize = RawReader::Write<double>(&pSubData, Angle);
-				Player->Move(Angle);
-				int Size = RawReader::CreatePacket(Packet, CommandType::MOVEMENT, SubCommandType::NONE, CurrentPlayerID, SubData, SubDataSize);
-				Player->Send(Packet, Size);
+				_Status.erase(_Status.begin(), _Status.begin() + 3);
+				if(Pressed)
+				{
+					// We pressed mouse key
+					u8 Packet[256];
+					u8 SubData[64];
+					u8 *pSubData = &SubData[0];
+					int SubDataSize = RawReader::Write<double>(&pSubData, Angle);
+					int Size = RawReader::CreatePacket(Packet, CommandType::MOVEMENT, SubCommandType::NONE, CurrentPlayerID, SubData, SubDataSize);
+					Player->Send(Packet, Size);
+				}
+				else
+				{
+					// We let go of mouse
+					u8 Packet[256];
+					u8 SubData[64];
+					u8 *pSubData = &SubData[0];
+					int SubDataSize = RawReader::Write<f32>(&pSubData, Player->Coord().X);
+					SubDataSize += RawReader::Write<f32>(&pSubData, Player->Coord().Y);
+					SubDataSize += RawReader::Write<f32>(&pSubData, Player->Coord().Z);
+					int Size = RawReader::CreatePacket(Packet, CommandType::STOPMOVEMENT, SubCommandType::NONE, CurrentPlayerID, SubData, SubDataSize);
+					Player->Send(Packet, Size);
+				}
 			}
 			break;
 			case Key_Type::MOUSE_3: // Right click, add tile
 			{
-				_Status.erase(_Status.begin(), _Status.begin() + 2);
-				f32 tX = (f32)(s32)Player->Coord().X;
-				f32 tY = (f32)(s32)Player->Coord().Y;
-				u8 Buffer[32];
-				u8 *pBuf = &Buffer[0];
-				int SubSize = RawReader::Write<u8>(&pBuf, MAP_TILE); 
-				SubSize += RawReader::Write<f32>(&pBuf, tX);
-				SubSize += RawReader::Write<f32>(&pBuf, tY);
-				SubSize += RawReader::Write<f32>(&pBuf, tZ);
-				SubSize += RawReader::Write<TILE_TYPE>(&pBuf, (TILE_TYPE)SelectedTile);
-				// Now let's send this to the server!
-				u8 Packet[128];
-				int Size = RawReader::CreatePacket(Packet, CommandType::INSERT_TILE, SubCommandType::NONE, CurrentPlayerID, Buffer, SubSize);
-				Player->Send(Packet, Size);
+				bool Pressed = (bool)_Status[3];
+				_Status.erase(_Status.begin(), _Status.begin() + 3);
+				if(Pressed)
+				{
+					f32 tX = (f32)(s32)Player->Coord().X;
+					f32 tY = (f32)(s32)Player->Coord().Y;
+					
+					u8 Buffer[32];
+					u8 *pBuf = &Buffer[0];
+					int SubSize = RawReader::Write<u8>(&pBuf, MAP_TILE); 
+					SubSize += RawReader::Write<f32>(&pBuf, tX);
+					SubSize += RawReader::Write<f32>(&pBuf, tY);
+					SubSize += RawReader::Write<f32>(&pBuf, tZ);
+					SubSize += RawReader::Write<TILE_TYPE>(&pBuf, (TILE_TYPE)SelectedTile);
+					// Now let's send this to the server!
+					u8 Packet[128];
+					int Size = RawReader::CreatePacket(Packet, CommandType::INSERT_TILE, SubCommandType::NONE, CurrentPlayerID, Buffer, SubSize);
+					Player->Send(Packet, Size);
+				}
 			}
 			break;
 			default:
@@ -275,6 +307,7 @@ int main(int argc, char **argv)
 	}
 	int Nameloc = 1;
 	int Passloc = 2;
+	struct timeval start, end;
 	bool Create = false;
 	if(argc == 4 && !strcmp(argv[1], "-c"))
 	{
@@ -317,15 +350,23 @@ int main(int argc, char **argv)
 	
 	std::map<u32, cPlayer*> PlayerArray;
 	std::map<u32, cPlayer*>::iterator it;
+	gettimeofday(&start, NULL);
 	while(Running)
 	{
-		usleep(200);
-		HandleInput();
+		gettimeofday(&end, NULL);
+		if(((end.tv_usec + end.tv_sec * 1000000) - (start.tv_usec + start.tv_sec * 1000000)) >= 50000)
+		{
+			HandleInput();
+			gettimeofday(&start, NULL);
+		}
 		Graphics::Clear();
 		PlayerArray = Players::GetArray();
 		Test.Draw(PlayerArray[CurrentPlayerID]);
 		for(it = PlayerArray.begin(); it != PlayerArray.end(); ++it)
+		{
+			it->second->Move();
 			Graphics::DrawPlayer(it->second, PlayerArray[CurrentPlayerID]);
+		}
 		// Draw a rect around the square we are currently at.
 		sCoord Lines[5] = { {0.0f, 0.0f, -32.0f},
 							{1.0f, 0.0f, -32.0f},

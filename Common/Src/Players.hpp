@@ -7,13 +7,17 @@
 #include <string.h>
 #include <math.h>
 
-#define MOVE_AMOUNT 0.2
+#define MOVE_AMOUNT 0.05
 
 class cPlayer
 {
 	private:
 	// Coordinates
 		sCoord _Coord;
+	// Movement Angle
+		double _Angle;
+	// Are we moving?
+		bool _Moving;
 	// Player ID
 		u32 _ID;
 	// Player Name
@@ -32,11 +36,22 @@ class cPlayer
 		sCoord Coord();
 		// Move with a radian angle
 		// Negative is up, positive is down
-		
-		void Move(double Angle)
+		void SetMove(double Angle)
 		{
-			_Coord.Y -= MOVE_AMOUNT * cos(Angle);
-			_Coord.X += MOVE_AMOUNT * sin(Angle);
+			_Angle = Angle;
+			_Moving = true;
+		}
+		void StopMove()
+		{
+			_Moving = false;
+		}
+		void Move()
+		{
+			if(_Moving)
+			{
+				_Coord.Y -= MOVE_AMOUNT * cos(_Angle);
+				_Coord.X += MOVE_AMOUNT * sin(_Angle);
+			}
 		}
 		void SetCoord(f32 X, f32 Y, f32 Z)
 		{

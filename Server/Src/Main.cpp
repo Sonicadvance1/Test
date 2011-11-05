@@ -49,7 +49,6 @@ void cPlayer::Player_Thread()
 				goto end; // For now this will auto destroy the class
 			if(result < 0) // Recv error!
 				goto end; // Just return for now
-			printf("Sweet, We got something %d big\n", result);
 			do
 			{
 				switch(RawReader::GetCommand(pbuf))
@@ -199,8 +198,20 @@ void cPlayer::Player_Thread()
 						double Angle;
 						u8 *SubData = RawReader::GetData(pbuf);
 						Angle = RawReader::Read<double>(&SubData);
-						Move(Angle);
-						Players::SendAll(pbuf, RawReader::GetFullSize(pbuf), _ID);
+						Players::SendAll(pbuf, RawReader::GetFullSize(pbuf));
+					}
+					break;
+					case CommandType::STOPMOVEMENT: // A Player moved
+					{
+						// Send to all except the ID that sent it
+						// TODO: Validate movement
+						f32 X, Y, Z;
+						u8 *SubData = RawReader::GetData(pbuf);
+						X = RawReader::Read<f32>(&SubData);
+						Y = RawReader::Read<f32>(&SubData);
+						Z = RawReader::Read<f32>(&SubData);
+						SetCoord(X, Y, Z);
+						Players::SendAll(pbuf, RawReader::GetFullSize(pbuf));
 					}
 					break;
 					case CommandType::INSERT_TILE:
