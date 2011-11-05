@@ -15,6 +15,7 @@ cPlayer *Player;
 cSocket *Socket;
 cMap Test;
 u32 CurrentPlayerID;
+u16 SelectedTile = TILE_TYPE::GRASS;
 std::vector<std::pair<u32, std::string>> TextList;
 
 // This drawing code REALLY REALLY shouldn't be here!
@@ -204,15 +205,17 @@ void HandleInput()
 				tZ++;
 				printf("Z moved to %f\n", tZ);
 			break;
-			case Key_Type::KEY_A:
-				
-			break;
 			case Key_Type::KEY_S:
 				tZ--;
 				printf("Z moved to %f\n", tZ);
 			break;
+			case Key_Type::KEY_A:
+				if(SelectedTile > TILE_TYPE::GRASS)
+					SelectedTile--;
+			break;
 			case Key_Type::KEY_D:
-				
+				if(SelectedTile < TILE_TYPE::COTTON_LGREY)
+					SelectedTile++;
 			break;
 			case Key_Type::MOUSE_1: // Left click move player
 			case Key_Type::MOUSE_2: // Middle click undecided, just move player for now.
@@ -247,7 +250,7 @@ void HandleInput()
 				SubSize += RawReader::Write<f32>(&pBuf, tX);
 				SubSize += RawReader::Write<f32>(&pBuf, tY);
 				SubSize += RawReader::Write<f32>(&pBuf, tZ);
-				SubSize += RawReader::Write<TILE_TYPE>(&pBuf, TILE_TYPE::GRASS);
+				SubSize += RawReader::Write<TILE_TYPE>(&pBuf, (TILE_TYPE)SelectedTile);
 				// Now let's send this to the server!
 				u8 Packet[128];
 				int Size = RawReader::CreatePacket(Packet, CommandType::INSERT_TILE, SubCommandType::NONE, CurrentPlayerID, Buffer, SubSize);
@@ -330,7 +333,8 @@ int main(int argc, char **argv)
 							{0.0f, 1.0f, -32.0f},
 							{0.0f, 0.0f, -32.0f} };
 		Graphics::DrawLines(Lines, 5); 
-		Graphics::DrawRect({0, 0, .1, .1}, 0);
+		cTile _Tile(PlayerArray[CurrentPlayerID]->Coord().X, PlayerArray[CurrentPlayerID]->Coord().Y, 5, (TILE_TYPE)SelectedTile);
+		Graphics::DrawTile(&_Tile, PlayerArray[CurrentPlayerID]);
 
 		std::vector<std::pair<u32, std::string>>::iterator it;
 		f32 _Y = 0;

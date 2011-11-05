@@ -10,9 +10,24 @@ enum MAP_TYPES
 	MAP_ENTITY
 };
 
-enum class TILE_TYPE : u16
+enum TILE_TYPE : u16
 {
-	GRASS = 0x0
+	GRASS = 0x0,
+	COTTON_BLACK,
+	COTTON_GREY,
+	COTTON_RED,
+	COTTON_PINK,
+	COTTON_GREEN,
+	COTTON_LGREEN,
+	COTTON_BROWN,
+	COTTON_YELLOW,
+	COTTON_DBLUE,
+	COTTON_BLUE,
+	COTTON_PURPLE,
+	COTTON_LPURPLE,
+	COTTON_LBLUE,
+	COTTON_ORANGE,
+	COTTON_LGREY
 };
 
 // std::triple
@@ -27,6 +42,13 @@ class cTile
 		TILE_TYPE _Type; // This is what type of tile it is
 	public:
 	cTile(){}
+	cTile(f32 X, f32 Y, f32 Z, TILE_TYPE Type)
+	{
+		_X = X;
+		_Y = Y;
+		_Z = Z;
+		_Type = Type;
+	}
 	cTile(u8 **Buffer) 
 	{
 		_X = RawReader::Read<f32>(Buffer);
