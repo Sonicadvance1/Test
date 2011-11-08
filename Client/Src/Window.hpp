@@ -14,7 +14,9 @@ enum Key_Type
 	KEY_D = 3,
 	MOUSE_1 = 4,
 	MOUSE_2 = 5,
-	MOUSE_3 = 6
+	MOUSE_3 = 6,
+	MOUSE_SCROLL_UP = 7,
+	MOUSE_SCROLL_DOWN = 8
 };
 
 namespace Windows

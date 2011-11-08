@@ -310,7 +310,11 @@ namespace Graphics
 			_Font[0]->Render((char*)Player->GetName(), -1, FTPoint(0, 0, 0));
 		glPopMatrix();
 		// TODO: Z relation
-		DrawRect({Player->Coord().X - Relation->Coord().X, Player->Coord().Y - Relation->Coord().Y, 0.5, 2.0, -32 + Player->Coord().Z}, 0);
+		// TODO: Show an actual player model
+		float TexCoords[48], ColourCoords[96];
+		DrawCube(	{Player->Coord().X - Relation->Coord().X, Player->Coord().Y - Relation->Coord().Y, Player->Coord().Z, 0.5, 0.5, 2.0},
+					GetTexCoord(TILE_TYPE::GRASS, TexCoords),
+					GetColourCoord(TILE_TYPE::GRASS, ColourCoords) );
 	}
 
 	void DrawTile(cTile *Tile, cPlayer *Relation)
@@ -363,6 +367,28 @@ namespace Graphics
 		}
 		_Font[0]->FaceSize(1);
 		_Font[1]->FaceSize(16);
+	}
+	void MoveCamera(bool Down)
+	{
+		static f32 Step = 0.0f;
+		// This makes sure there is 25 steps
+		// Going from -25 to 0
+		if(Down)
+		{
+			if(Step > -25)
+				Step -= 1.0f;
+		}
+		else
+		{
+			if(Step < 0)
+				Step += 1.0f;
+		}
+		glLoadIdentity();                           // Reset The Projection Matrix
+		// So the closest we want to get
+		// is a rotation of -60 on the X axis
+		// and translating to (0, 10, 25)
+		glRotatef(-25 + Step * 1.4f, 1, 0, 0);
+		glTranslatef(0, 16 + Step * 0.24f, -Step);
 	}
 	void Shutdown()
 	{

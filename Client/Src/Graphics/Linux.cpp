@@ -49,7 +49,7 @@ void CreateXWindow(void)
 void XEventThread()
 {
 	// We will get key events and stuff here
-	bool MousePressed[4]; // Mouse Press status
+	bool MousePressed[6]; // Mouse Press status
 	while(Running)
 	{
 		XEvent event;
@@ -97,6 +97,15 @@ void XEventThread()
 						case 3: // Right
 							_KeyStatus.push_back(Key_Type::MOUSE_3);
 						break;
+						case 4: // Scroll up
+							_KeyStatus.push_back(Key_Type::MOUSE_SCROLL_UP);
+						break;
+						case 5: // Scroll down
+							_KeyStatus.push_back(Key_Type::MOUSE_SCROLL_DOWN);
+						break;
+						default:
+							printf("We don't know mouse Press: %d\n", event.xbutton.button);
+						break;
 					}
 					_KeyStatus.push_back(event.xbutton.x);
 					_KeyStatus.push_back(event.xbutton.y);
@@ -114,6 +123,15 @@ void XEventThread()
 						break;
 						case 3: // Right
 							_KeyStatus.push_back(Key_Type::MOUSE_3);
+						break;
+						case 4: // Scroll up
+							_KeyStatus.push_back(Key_Type::MOUSE_SCROLL_UP);
+						break;
+						case 5: // Scroll down
+							_KeyStatus.push_back(Key_Type::MOUSE_SCROLL_DOWN);
+						break;
+						default:
+							printf("We don't know mouse Release: %d\n", event.xbutton.button);
 						break;
 					}
 					_KeyStatus.push_back(event.xbutton.x);

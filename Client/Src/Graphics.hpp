@@ -43,6 +43,8 @@ namespace Graphics
 	void DrawTile(cTile *Tile, cPlayer *Relation);
 	// Draws text to the screen
 	void DrawText(const char *Text, sCoord Coord, bool TwoD = true);
+	// Moves the camera towards or away from player
+	void MoveCamera(bool Down);
 	void Clear();
 	void Swap();
 }

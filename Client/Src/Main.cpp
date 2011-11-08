@@ -234,6 +234,7 @@ void HandleInput()
 			{
 				// After initial one on mouse, we have two more in the array for X and Y coordinates of mouse press.
 				// TODO: Convert to world coordinates!
+				// Right now it is really wierd movement when entirely zoomed in on player!
 				s32 X, Y;
 				bool Pressed;
 				double Angle;
@@ -287,6 +288,16 @@ void HandleInput()
 					int Size = RawReader::CreatePacket(Packet, CommandType::INSERT_TILE, SubCommandType::NONE, CurrentPlayerID, Buffer, SubSize);
 					Player->Send(Packet, Size);
 				}
+			}
+			break;
+			case Key_Type::MOUSE_SCROLL_UP:
+			case Key_Type::MOUSE_SCROLL_DOWN:
+			{
+				bool Down = _Status[0] == MOUSE_SCROLL_DOWN ? true : false;
+				bool Pressed = (bool)_Status[3];
+				_Status.erase(_Status.begin(), _Status.begin() + 3);
+				if(!Pressed)
+					Graphics::MoveCamera(Down);
 			}
 			break;
 			default:
