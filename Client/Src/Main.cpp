@@ -90,7 +90,7 @@ void cPlayer::Player_Thread()
 								char Signin[64];
 								sprintf(Signin, "Player %s is online!", (char*)Username);
 								TextList.push_back(make_pair(2000, std::string(Signin)));
-								printf("Player %s is online!\n", Username, X, Y);
+								printf("Player %s is online!\n", Username);
 								cPlayer *tmp = new cPlayer(PlayerID);
 								tmp->SetName(Username);
 								tmp->SetCoord(X, Y, Z);
@@ -338,7 +338,8 @@ int main(int argc, char **argv)
 	u8 *pData = &Data[0];
 	u32 DataSize = RawReader::WriteString(&pData, argv[Nameloc]);
 	// Encrypt our password
-	Crypto::Encrypt(CryptoType::SHA256, argv[Passloc], strlen(argv[Passloc]), RawHashPass);
+	if(!Crypto::Encrypt(CryptoType::SHA256, argv[Passloc], strlen(argv[Passloc]), RawHashPass)) // returns NULL on error
+		return 0;
 	for(int a = 0; a < 32; ++a)
 		sprintf((char*)HashPass, "%s%02X", (a == 0 ? "" : (char*)HashPass), RawHashPass[a]);
 	DataSize += RawReader::WriteString(&pData, (char*)HashPass);
@@ -356,7 +357,8 @@ int main(int argc, char **argv)
 	Size = RawReader::CreatePacket(&Packet[0], CommandType::LOGIN, SubCommandType::NONE, 0, Data, DataSize);
 	Socket->Send(Packet, Size);
 	
-	Windows::Init();
+	if(!Windows::Init())
+		return 0;
 	Graphics::Init();
 	
 	std::map<u32, cPlayer*> PlayerArray;

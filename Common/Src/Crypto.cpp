@@ -21,5 +21,6 @@ namespace Crypto
 				printf("We don't support Encrypting that type!\n");
 			break;
 		}
+		return NULL;
 	}
 }

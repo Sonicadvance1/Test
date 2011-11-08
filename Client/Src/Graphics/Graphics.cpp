@@ -28,7 +28,7 @@ int LoadPNG(const char *filename, GLuint *Texture)
         unsigned int rowbytes;         /* raw bytes at row n in image */
         
         image_data = NULL;
-        int i;
+        unsigned int i;
         png_bytepp row_pointers = NULL;
         
         /* Open the file. */

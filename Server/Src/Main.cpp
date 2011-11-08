@@ -81,7 +81,7 @@ void cPlayer::Player_Thread()
 							_ID = atoi(Results[Cols]); // Gives us the First column in the returned array which is ID!
 							printf("Found User %s: %d\n", Username, _ID);
 							// Create the Login packet and send it
-							int SubDataSize = RawReader::WriteString(&pSubData, (const char*)Username, strlen((const char*)Username));
+							SubDataSize = RawReader::WriteString(&pSubData, (const char*)Username, strlen((const char*)Username));
 							// TODO: Fill in with the coordinates in the database
 									sCoord tCoord = Coord();
 									SubDataSize += RawReader::Write<f32>(&pSubData, tCoord.X);
@@ -195,9 +195,9 @@ void cPlayer::Player_Thread()
 					{
 						// Send to all except the ID that sent it
 						// TODO: Validate movement
-						double Angle;
-						u8 *SubData = RawReader::GetData(pbuf);
-						Angle = RawReader::Read<double>(&SubData);
+						//double Angle;
+						//u8 *SubData = RawReader::GetData(pbuf);
+						//Angle = RawReader::Read<double>(&SubData);
 						Players::SendAll(pbuf, RawReader::GetFullSize(pbuf));
 					}
 					break;
@@ -287,7 +287,7 @@ int main(int argc, char** argv)
 		mDeletions.lock();
 		if(Deletions.size() > 0) // yay, people to remove
 		{
-			for(int a = 0; a < Deletions.size(); ++a)
+			for(u32 a = 0; a < Deletions.size(); ++a)
 			{
 				
 				memset(&Deletions[a], sizeof(Deletions[a]), 0);

@@ -154,7 +154,7 @@ void XEventThread()
 				break;
 				case ClientMessage: // For Window close event
 				{
-					if (event.xclient.data.l[0] == XInternAtom(dpy, "WM_DELETE_WINDOW", False))
+					if (event.xclient.data.l[0] == (long)XInternAtom(dpy, "WM_DELETE_WINDOW", False))
 						Running = false;
 				}
 				break;
@@ -219,6 +219,7 @@ namespace Windows
 		CreateXWindow();
 		glXMakeCurrent(dpy, win, ctx);
 		xEventThread = std::thread(XEventThread);
+		return true;
 	}
 
 	void Shutdown()

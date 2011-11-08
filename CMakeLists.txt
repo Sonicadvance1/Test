@@ -27,7 +27,7 @@ if(CMAKE_BUILD_TYPE STREQUAL Release)
 endif(CMAKE_BUILD_TYPE STREQUAL Release)
 
 
-add_definitions(-std=c++0x)
+add_definitions(-std=c++0x -Wall -Werror)
 # Add our common directory for Common includes
 include_directories(Common/Src)
 
