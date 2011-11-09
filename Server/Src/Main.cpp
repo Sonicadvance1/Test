@@ -68,7 +68,7 @@ void cPlayer::Player_Thread()
 						sprintf(Command, "SELECT * FROM "PLAYER_TABLE" WHERE PlayerName='%s' AND Password='%s'", Username, Password);
 						Database::Table(Command, &Results, &Rows, &Cols);
 
-						u8 Packet[256];
+						u8 *Packet = new u8[256];
 						u8 SubData[64];
 						u8 *pSubData = &SubData[0];
 						int SubDataSize;
@@ -150,6 +150,7 @@ void cPlayer::Player_Thread()
 						// TODO: Grab player shit from the database
 
 						Database::FreeTable(Results);
+						delete[] Packet;
 						delete[] Username;
 						delete[] Password;
 					}

@@ -8,7 +8,7 @@ namespace RawReader
 	// Then the actual string
 	u32 WriteString(u8 **Buffer, const char *Str, s32 Size)
 	{
-		u16 StrSize;
+		u16 StrSize = 0;
 		if(Size == -1) // Just a null terminated string
 			StrSize = strlen(Str);
 		else // a Set Size

@@ -31,7 +31,7 @@ void cMap::Draw(cPlayer* Player)
 
 void cPlayer::Player_Thread()
 {
-	u8 buf[MAXPACKETSIZE];
+	u8 *buf = (u8*)malloc(MAXPACKETSIZE);
 	u8 *pbuf = buf;
 	s32 CurrentLoc;
 	while(Running)
@@ -197,6 +197,7 @@ void cPlayer::Player_Thread()
 		}
 	}
 	end:
+	free(buf);
 	Players::RemovePlayer(CurrentPlayerID);
 	Running = false;
 }
@@ -243,23 +244,24 @@ void HandleInput()
 				Pressed = (bool)_Status[3];
 				Angle = atan2(X - DEFAULT_WIDTH / 2, Y - DEFAULT_HEIGHT / 2);
 				_Status.erase(_Status.begin(), _Status.begin() + 3);
+
+				// Setup some of our packet stuff here.
+					u8 Packet[256];
+					memset(Packet, 0x0, 256); // Just in case
+					u8 SubData[64];
+					u8 *pSubData = &SubData[0];
+					int SubDataSize = 0;
 				if(Pressed)
 				{
 					// We pressed mouse key
-					u8 Packet[256];
-					u8 SubData[64];
-					u8 *pSubData = &SubData[0];
-					int SubDataSize = RawReader::Write<double>(&pSubData, Angle);
+					SubDataSize = RawReader::Write<double>(&pSubData, Angle);
 					int Size = RawReader::CreatePacket(Packet, CommandType::MOVEMENT, SubCommandType::NONE, CurrentPlayerID, SubData, SubDataSize);
 					Player->Send(Packet, Size);
 				}
 				else
 				{
 					// We let go of mouse
-					u8 Packet[256];
-					u8 SubData[64];
-					u8 *pSubData = &SubData[0];
-					int SubDataSize = RawReader::Write<f32>(&pSubData, Player->Coord().X);
+					SubDataSize = RawReader::Write<f32>(&pSubData, Player->Coord().X);
 					SubDataSize += RawReader::Write<f32>(&pSubData, Player->Coord().Y);
 					SubDataSize += RawReader::Write<f32>(&pSubData, Player->Coord().Z);
 					int Size = RawReader::CreatePacket(Packet, CommandType::STOPMOVEMENT, SubCommandType::NONE, CurrentPlayerID, SubData, SubDataSize);
@@ -345,7 +347,8 @@ int main(int argc, char **argv)
 	DataSize += RawReader::WriteString(&pData, (char*)HashPass);
 
 	u8 Packet[512];
-	u32 Size;
+	memset(Packet, 0x0, 512); // Just be extra safe here
+	u32 Size = 0;
 
 	// Are we creating this character?
 	if(Create)

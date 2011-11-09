@@ -28,9 +28,19 @@ class cPlayer
 		void Player_Thread();
 	// Player Socket
 		cSocket *_Socket;
+	// Just does some pre-initialization
+		inline void _Init()
+		{
+			_Moving = false;
+			_Angle = 0;
+		}
 	public:
-		cPlayer() {}
-		cPlayer(u32 ID) { _ID = ID; }
+		cPlayer(u32 ID = 0)
+		{
+			_ID = ID;
+			// Initialize some variables here
+			_Init();
+		}
 		cPlayer(cSocket *Socket);
 		~cPlayer();
 		sCoord Coord();

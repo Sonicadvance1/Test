@@ -47,11 +47,12 @@ cPlayer::cPlayer(cSocket *Socket)
 {
 	
 	_Socket = Socket;
-	// Currently setting ID to socket
-	// TODO: It should be a unique ID tied to the account name
-	// Currently setting to the IP
+	// Sets the ID to the socket IP on initialization
+	// Later on changes to actual ID pulled from the Database
 	_ID = Socket->IP();
 	_t = std::thread(&cPlayer::Player_Thread, this);
+	// Initialize some of our variables here.
+	_Init();
 }
 
 cPlayer::~cPlayer()

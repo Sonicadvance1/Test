@@ -177,6 +177,7 @@ int LoadPNG(const char *filename, GLuint *Texture)
         glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, 
                                  GL_RGB, GL_UNSIGNED_BYTE, image_data);
+        free(image_data);
         return 1;
                 
 }

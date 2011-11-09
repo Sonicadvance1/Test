@@ -37,6 +37,7 @@ cSocket::cSocket(s32 Socket, u32 IP)
 cSocket::~cSocket()
 {
 	close(_Socket);
+	_Socket = 0;
 }
 
 // This opens a new socket on a port
@@ -96,6 +97,8 @@ bool cSocket::Listen()
 // Do we have data?
 bool cSocket::HasData()
 {
+	if(_Socket == 0) // Not a socket
+		return false;
 	fd_set tmpSet = _Set;
 	timeval tmpVal = Maxtimeout;
 	// Select has the ability to modify both the set and the timeval....WHICH IT DOES! D:<
@@ -104,6 +107,8 @@ bool cSocket::HasData()
         printf("Couldn't select socket!\n");
         return false;
     }
+    if(_Socket == 0) // Not a socket....Just in case it was in the middle of checking for packet
+		return false;
     // Do we have anyone trying to connect?
     if(FD_ISSET(_Socket, &tmpSet))
     {
