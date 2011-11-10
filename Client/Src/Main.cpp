@@ -31,7 +31,7 @@ void cMap::Draw(cPlayer* Player)
 
 void cPlayer::Player_Thread()
 {
-	u8 *buf = (u8*)malloc(MAXPACKETSIZE);
+	u8 *buf = new u8[MAXPACKETSIZE];
 	u8 *pbuf = buf;
 	s32 CurrentLoc;
 	while(Running)
@@ -197,7 +197,7 @@ void cPlayer::Player_Thread()
 		}
 	}
 	end:
-	free(buf);
+	delete[] buf;
 	Players::RemovePlayer(CurrentPlayerID);
 	Running = false;
 }

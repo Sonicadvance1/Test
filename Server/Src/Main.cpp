@@ -33,7 +33,7 @@ std::mutex mDeletions;
 
 void cPlayer::Player_Thread()
 {
-	u8 buf[MAXPACKETSIZE];
+	u8 *buf = new u8[MAXPACKETSIZE];
 	u8 *pbuf = buf;
 	s32 CurrentLoc;
 	for(;;)
@@ -69,9 +69,10 @@ void cPlayer::Player_Thread()
 						Database::Table(Command, &Results, &Rows, &Cols);
 
 						u8 *Packet = new u8[256];
+						memset(Packet, 0x0, 256); // Just for some safety
 						u8 SubData[64];
 						u8 *pSubData = &SubData[0];
-						int SubDataSize;
+						int SubDataSize = 0;
 						if(Rows > 1) // Found our user
 						{
 							// Overwrite with the username stored in the database since it isn't case sensitive
@@ -115,8 +116,8 @@ void cPlayer::Player_Thread()
 								}
 							}
 							// Send Users the newly connected player
-							memset(Packet, 256, 0);
-							memset(&SubData, 64, 0);
+							memset(Packet, 0x0, 256);
+							memset(SubData, 0x0, 64);
 							pSubData = &SubData[0];
 							SubDataSize = RawReader::WriteString(&pSubData, (const char*)GetName(), strlen((const char*)GetName()));
 							Size = RawReader::CreatePacket(Packet, CommandType::LOGGED_IN, SubCommandType::PLAYERDATA_NAME, _ID, SubData, SubDataSize);
@@ -125,11 +126,12 @@ void cPlayer::Player_Thread()
 							// Send the User the map
 							// TODO: Send in chunks
 							u8 *MapPacket;
-							u32 MapSize;
+							u32 MapSize = 0;
 							u8* MapArray = Maps::_Maps[0]->GetMap(&MapSize);
 							// We need to allocate this size because it could get massive.
 							// We align it to a 8-byte boundary because I've gotten problems with it before
 							MapPacket = new u8[(8 - (MapSize + 9) % 8) + (MapSize + 9)];
+							memset(MapPacket, 0x0, (8 - (MapSize + 9) % 8) + (MapSize + 9)); // Just be safe here
 							Size = RawReader::CreatePacket(MapPacket, CommandType::MAP, SubCommandType::NONE, 0/* MAP ID? */, MapArray, MapSize);
 							_Socket->Send(MapPacket, Size);
 							delete[] MapPacket;
