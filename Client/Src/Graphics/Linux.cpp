@@ -243,6 +243,15 @@ namespace Windows
 	{
 		glXSwapBuffers(dpy, win);
 	}
+
+	GLXContext Context()
+	{
+		return ctx;
+	}
+	Display* DPY()
+	{
+		return dpy;
+	}
 	std::vector<u32> GetKeyStatus()
 	{
 		std::vector<u32> tmp = _KeyStatus;

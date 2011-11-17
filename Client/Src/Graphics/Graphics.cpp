@@ -200,11 +200,7 @@ namespace Graphics
 		glPushMatrix();
 		glBindTexture(GL_TEXTURE_2D, Tex);
 		glBegin(GL_QUADS);
-		static float colour = 0.0f;
-		colour += 0.01f;
-		if(colour > 1.0f)
-			colour = 0.0f;
-			glColor4f(colour, 1.0, 1.0, 1.0);
+		glColor4f(1.0, 1.0, 1.0, 1.0);
 			glTexCoord2f(0.0f, 0.0f);
 			glVertex3f(Quad.x, Quad.y, Quad.z); // Top Left
 			glTexCoord2f(1.0f, 0.0f);

@@ -80,6 +80,10 @@ float* GetTexCoord(TILE_TYPE Type, float *Coords)
 			XMulti = 1;
 			YMulti = 1;
 		break;
+		case TILE_TYPE::FILTH:
+			XMulti = 2;
+			YMulti = 15;
+		break;
 		default:
 			printf("No idea what %d is!\n", Type);
 			exit(0);
@@ -101,7 +105,7 @@ float* GetColourCoord(TILE_TYPE Type, float *Coords)
 	switch(Type)
 	{
 		case TILE_TYPE::GRASS:
-			// Grass is at tile 0, 15
+			// Make grass green
 			for(int a = 0; a < 96; a += 4)
 			{
 				Coords[a] = 0; // Red
@@ -109,7 +113,16 @@ float* GetColourCoord(TILE_TYPE Type, float *Coords)
 				Coords[a + 2] = 0; // Blue
 				Coords[a + 3] = 1.0f; // Alpha
 			}
-		
+		break;
+		case TILE_TYPE::FILTH:
+			// Make dirt dirty filth
+			for(int a = 0; a < 96; a += 4)
+			{
+				Coords[a] = 0.60f; // Red
+				Coords[a + 1] = 0.40f; // Green
+				Coords[a + 2] = 0; // Blue
+				Coords[a + 3] = 1.0f; // Alpha
+			}
 		break;
 		case TILE_TYPE::COTTON_BLACK:
 		case TILE_TYPE::COTTON_GREY:

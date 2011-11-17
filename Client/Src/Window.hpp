@@ -30,6 +30,9 @@ namespace Windows
 	bool Init();
 	void Shutdown();
 	void SwapBuffers();
+
+	GLXContext Context();
+	Display* DPY();
 	
 	std::vector<u32> GetKeyStatus();
 }

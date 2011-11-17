@@ -27,7 +27,10 @@ enum TILE_TYPE : u16
 	COTTON_LPURPLE,
 	COTTON_LBLUE,
 	COTTON_ORANGE,
-	COTTON_LGREY
+	COTTON_LGREY,
+	FILTH,
+
+	TILE_END // Keep this at the end
 };
 
 // std::triple

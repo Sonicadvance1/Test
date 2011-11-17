@@ -227,7 +227,7 @@ void HandleInput()
 					SelectedTile--;
 			break;
 			case Key_Type::KEY_D:
-				if(SelectedTile < TILE_TYPE::COTTON_LGREY)
+				if((SelectedTile + 1) < TILE_TYPE::TILE_END)
 					SelectedTile++;
 			break;
 			case Key_Type::MOUSE_1: // Left click move player
