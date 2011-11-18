@@ -40,7 +40,7 @@ namespace Graphics
 	// Draws player PlayerID in relation to Relation
 	void DrawPlayer(cPlayer *Player, cPlayer* Relation);
 	// Draws tile in relation to the player
-	void DrawTile(cTile *Tile, cPlayer *Relation);
+	void DrawTile(cTile *Tile, sCoord Relation);
 	// Draws text to the screen
 	void DrawText(const char *Text, sCoord Coord, bool TwoD = true);
 	// Moves the camera towards or away from player

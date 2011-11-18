@@ -2,18 +2,20 @@
 #define PLAYERS_HPP_
 #include "Common.hpp"
 #include "Socket.hpp"
+#include "Map.hpp"
 #include <thread>
 #include <map>
 #include <string.h>
 #include <math.h>
 
-#define MOVE_AMOUNT 0.05
+#define MOVE_AMOUNT 0.025
 
 class cPlayer
 {
 	private:
 	// Coordinates
 		sCoord _Coord;
+		u32 _MapID;
 	// Movement Angle
 		double _Angle;
 	// Are we moving?
@@ -33,6 +35,7 @@ class cPlayer
 		{
 			_Moving = false;
 			_Angle = 0;
+			_MapID = 0;
 		}
 	public:
 		cPlayer(u32 ID = 0)
@@ -55,14 +58,8 @@ class cPlayer
 		{
 			_Moving = false;
 		}
-		void Move()
-		{
-			if(_Moving)
-			{
-				_Coord.Y -= MOVE_AMOUNT * cos(_Angle);
-				_Coord.X += MOVE_AMOUNT * sin(_Angle);
-			}
-		}
+		void Move();
+		
 		void SetCoord(f32 X, f32 Y, f32 Z)
 		{
 			_Coord.Y = Y;

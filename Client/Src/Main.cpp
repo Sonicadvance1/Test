@@ -14,13 +14,12 @@
 bool Running = true;
 cPlayer *Player;
 cSocket *Socket;
-cMap Test;
 u32 CurrentPlayerID;
 u16 SelectedTile = TILE_TYPE::GRASS;
 std::vector<std::pair<u32, std::string>> TextList;
 
 // This drawing code REALLY REALLY shouldn't be here!
-void cMap::Draw(cPlayer* Player)
+void cMap::Draw(sCoord Player)
 {
 	TileMap::iterator it;
 	for(it = _Tiles.begin(); it != _Tiles.end(); ++it)
@@ -180,13 +179,14 @@ void cPlayer::Player_Thread()
 					{
 						u8 *SubData = RawReader::GetData(pbuf);
 						u32 SubDataSize = RawReader::GetDataSize(pbuf);
-						Test.Load(SubData, SubDataSize);
+						u32 MapID = RawReader::GetID(pbuf);
+						Maps::LoadBuffer(MapID, SubData, SubDataSize);
 					}
 					break;
 					case CommandType::INSERT_TILE: // TODO: Should we allow these to be mashed together?
 					{
 						u8 *SubData = RawReader::GetData(pbuf);
-						Test.InsertObject(SubData);
+						Maps::Map(0)->InsertObject(SubData);
 					}
 					break;
 					default:
@@ -377,7 +377,7 @@ int main(int argc, char **argv)
 		}
 		Graphics::Clear();
 		PlayerArray = Players::GetArray();
-		Test.Draw(PlayerArray[CurrentPlayerID]);
+		Maps::Map(0)->Draw(PlayerArray[CurrentPlayerID]->Coord());
 		for(it = PlayerArray.begin(); it != PlayerArray.end(); ++it)
 		{
 			it->second->Move();
@@ -391,7 +391,7 @@ int main(int argc, char **argv)
 							{0.0f, 0.0f, -32.0f} };
 		Graphics::DrawLines(Lines, 5); 
 		cTile _Tile(PlayerArray[CurrentPlayerID]->Coord().X, PlayerArray[CurrentPlayerID]->Coord().Y, 5, (TILE_TYPE)SelectedTile);
-		Graphics::DrawTile(&_Tile, PlayerArray[CurrentPlayerID]);
+		Graphics::DrawTile(&_Tile, PlayerArray[CurrentPlayerID]->Coord());
 
 		std::vector<std::pair<u32, std::string>>::iterator it;
 		f32 _Y = 0;

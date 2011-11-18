@@ -64,3 +64,26 @@ sCoord cPlayer::Coord()
 {
 	return _Coord;
 }
+
+void cPlayer::Move()
+{
+	// Player Movement
+	if(_Moving)
+	{
+		_Coord.Y -= MOVE_AMOUNT * cos(_Angle);
+		_Coord.X += MOVE_AMOUNT * sin(_Angle);
+	}
+	//Gravity
+	s32 X = (s32)_Coord.X;
+	s32 Y = (s32)_Coord.Y;
+	s32 Z = (s32)_Coord.Z;
+	// Subtract one to get the tile below the player
+	Z--;
+	if(!Maps::Map(_MapID)->Exists(make_triple(X, Y, Z))) // TODO: if no tile below
+	{
+		if(_Coord.Z < -64) // TODO: Max Width and height
+			_Coord.Z = 64;
+		_Coord.Z -= MOVE_AMOUNT;
+	}
+	
+}

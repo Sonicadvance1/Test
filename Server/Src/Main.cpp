@@ -127,7 +127,7 @@ void cPlayer::Player_Thread()
 							// TODO: Send in chunks
 							u8 *MapPacket;
 							u32 MapSize = 0;
-							u8* MapArray = Maps::_Maps[0]->GetMap(&MapSize);
+							u8* MapArray = Maps::Map(0)->GetMap(&MapSize);
 							// We need to allocate this size because it could get massive.
 							// We align it to a 8-byte boundary because I've gotten problems with it before
 							MapPacket = new u8[(8 - (MapSize + 9) % 8) + (MapSize + 9)];
@@ -223,7 +223,7 @@ void cPlayer::Player_Thread()
 						u8 *SubData = RawReader::GetData(pbuf);
 						// Insert it in to our map
 						// Currently Map[0] just because that is the ONLY map we have.
-						Maps::_Maps[0]->InsertObject(SubData);
+						Maps::Map(0)->InsertObject(SubData);
 						// Send the change to everyone
 						Players::SendAll(pbuf, RawReader::GetFullSize(pbuf));
 					}

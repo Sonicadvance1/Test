@@ -314,11 +314,11 @@ namespace Graphics
 					GetColourCoord(TILE_TYPE::GRASS, ColourCoords) );
 	}
 
-	void DrawTile(cTile *Tile, cPlayer *Relation)
+	void DrawTile(cTile *Tile, sCoord Relation)
 	{
 		// TODO: Adjust Z here later
 		float TexCoords[48], ColourCoords[96];
-		Graphics::DrawCube({Tile->_X - Relation->Coord().X, Tile->_Y - Relation->Coord().Y, Tile->_Z, 1, 1, 1}, GetTexCoord(Tile->Type(), TexCoords), GetColourCoord(Tile->Type(), ColourCoords));
+		Graphics::DrawCube({Tile->_X - Relation.X, Tile->_Y - Relation.Y, Tile->_Z, 1, 1, 1}, GetTexCoord(Tile->Type(), TexCoords), GetColourCoord(Tile->Type(), ColourCoords));
 	}
 	void DrawText(const char *Text, sCoord Coord, bool TwoD)
 	{
