@@ -299,26 +299,24 @@ namespace Graphics
 			// Set it to white for the text
 			glColor4f(1.0, 1.0, 1.0, 1.0);
 			// Translate to the location
-			glTranslatef(Player->Coord().X - Relation->Coord().X - Test2.X() / 2 * ScaleX, Player->Coord().Y - Relation->Coord().Y + 2, -32 + Player->Coord().Z);
+			glTranslatef(Player->Coord().X - Relation->Coord().X - Test2.X() / 2 * ScaleX, Player->Coord().Y - Relation->Coord().Y + 2, -32 + Player->Coord().Z - Relation->Coord().Z);
 			// Scale the font down in size
 			glScalef(ScaleX, ScaleY, 1);
 			// Now render it
 			// TODO: Put a grey rectangle underneath it to make it pop more
 			_Font[0]->Render((char*)Player->GetName(), -1, FTPoint(0, 0, 0));
 		glPopMatrix();
-		// TODO: Z relation
 		// TODO: Show an actual player model
 		float TexCoords[48], ColourCoords[96];
-		DrawCube(	{Player->Coord().X - Relation->Coord().X, Player->Coord().Y - Relation->Coord().Y, Player->Coord().Z, 0.5, 0.5, 2.0},
+		DrawCube(	{Player->Coord().X - Relation->Coord().X, Player->Coord().Y - Relation->Coord().Y, Player->Coord().Z - Relation->Coord().Z, 0.5, 0.5, 2.0},
 					GetTexCoord(TILE_TYPE::GRASS, TexCoords),
 					GetColourCoord(TILE_TYPE::GRASS, ColourCoords) );
 	}
 
 	void DrawTile(cTile *Tile, sCoord Relation)
 	{
-		// TODO: Adjust Z here later
 		float TexCoords[48], ColourCoords[96];
-		Graphics::DrawCube({Tile->_X - Relation.X, Tile->_Y - Relation.Y, Tile->_Z, 1, 1, 1}, GetTexCoord(Tile->Type(), TexCoords), GetColourCoord(Tile->Type(), ColourCoords));
+		Graphics::DrawCube({Tile->_X - Relation.X, Tile->_Y - Relation.Y, Tile->_Z - Relation.Z, 1, 1, 1}, GetTexCoord(Tile->Type(), TexCoords), GetColourCoord(Tile->Type(), ColourCoords));
 	}
 	void DrawText(const char *Text, sCoord Coord, bool TwoD)
 	{
