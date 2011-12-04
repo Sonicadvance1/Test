@@ -22,7 +22,8 @@ std::vector<std::pair<u32, std::string>> TextList;
 void cMap::Draw(sCoord Player)
 {
 	TileMap::iterator it;
-	for(it = _Tiles.begin(); it != _Tiles.end(); ++it)
+	TileMap::iterator end = _Tiles.end();
+	for(it = _Tiles.begin(); it != end; ++it)
 	{
 		Graphics::DrawTile(&it->second, Player);
 	}

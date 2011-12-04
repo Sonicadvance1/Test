@@ -105,24 +105,44 @@ float* GetColourCoord(TILE_TYPE Type, float *Coords)
 	switch(Type)
 	{
 		case TILE_TYPE::GRASS:
-			// Make grass green
-			for(int a = 0; a < 96; a += 4)
+		// Make grass green
+		{
+			static bool _done = false;
+			static float _colour[96];
+			if(!_done)
 			{
-				Coords[a] = 0; // Red
-				Coords[a + 1] = 1.0f; // Green
-				Coords[a + 2] = 0; // Blue
-				Coords[a + 3] = 1.0f; // Alpha
+				// For anything default, just white colour
+				for(int a = 0; a < 96; a += 4)
+				{
+					_colour[a] = 0.0f; // Red
+					_colour[a + 1] = 1.0f; // Green
+					_colour[a + 2] = 0.0; // Blue
+					_colour[a + 3] = 1.0f; // Alpha
+				}
+				_done = true;
 			}
+			memcpy(Coords, _colour, 96 * 4);
+		}
 		break;
 		case TILE_TYPE::FILTH:
-			// Make dirt dirty filth
-			for(int a = 0; a < 96; a += 4)
+		// Make dirt dirty filth
+		{
+			static bool _done = false;
+			static float _colour[96];
+			if(!_done)
 			{
-				Coords[a] = 0.60f; // Red
-				Coords[a + 1] = 0.40f; // Green
-				Coords[a + 2] = 0; // Blue
-				Coords[a + 3] = 1.0f; // Alpha
+				// For anything default, just white colour
+				for(int a = 0; a < 96; a += 4)
+				{
+					_colour[a] = 0.60f; // Red
+					_colour[a + 1] = 0.40f; // Green
+					_colour[a + 2] = 0.0; // Blue
+					_colour[a + 3] = 1.0f; // Alpha
+				}
+				_done = true;
 			}
+			memcpy(Coords, _colour, 96 * 4);
+		}
 		break;
 		case TILE_TYPE::COTTON_BLACK:
 		case TILE_TYPE::COTTON_GREY:
@@ -140,14 +160,23 @@ float* GetColourCoord(TILE_TYPE Type, float *Coords)
 		case TILE_TYPE::COTTON_ORANGE:
 		case TILE_TYPE::COTTON_LGREY:
 		default:
-			// For anything default, just white colour
-			for(int a = 0; a < 96; a += 4)
+		{
+			static bool _done = false;
+			static float _colour[96];
+			if(!_done)
 			{
-				Coords[a] = 1.0f; // Red
-				Coords[a + 1] = 1.0f; // Green
-				Coords[a + 2] = 1.0; // Blue
-				Coords[a + 3] = 1.0f; // Alpha
+				// For anything default, just white colour
+				for(int a = 0; a < 96; a += 4)
+				{
+					_colour[a] = 1.0f; // Red
+					_colour[a + 1] = 1.0f; // Green
+					_colour[a + 2] = 1.0; // Blue
+					_colour[a + 3] = 1.0f; // Alpha
+				}
+				_done = true;
 			}
+			memcpy(Coords, _colour, 96 * 4);
+		}
 		break;
 	}
 	return Coords;
